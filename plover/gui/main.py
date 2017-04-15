@@ -391,6 +391,8 @@ class MainFrame(wx.Frame):
         self.radio_output_enable.SetValue(output_enabled)
 
     def _quit(self, event=None):
+        self.ime_connection.destroy();
+        self.ime_connection.join()
         if self.steno_engine:
             self.steno_engine.destroy()
         self.Destroy()

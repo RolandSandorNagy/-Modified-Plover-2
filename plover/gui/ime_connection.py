@@ -25,7 +25,7 @@ class ImeConnection(threading.Thread):
             con = self.connected
             if(not self.connected):
                 if(self.contry):
-                    print 'connecting...'
+                    print 'connecting to IME...'
                     self.contry = False
                 self.connected = self.connectToServer()
             if(not con and self.connected):
@@ -65,3 +65,6 @@ class ImeConnection(threading.Thread):
     def setHasMsg(self):
         self.hasMsgToSend = True
 
+    def destroy(self):
+        self.closeConnection()
+        self.running = False
