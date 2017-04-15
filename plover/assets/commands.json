@@ -10,6 +10,7 @@
 "PHRO*F": "{PLOVER:SUSPEND}",
 "PHROLG": "{PLOVER:TOGGLE}",
 "PHROPB": "{PLOVER:RESUME}",
+
 "PHROTS": "{PLOVER:PAUSEIME}",
 "PHRATS": "{PLOVER:RESUMEIME}",
 "PHRODZ": "{PLOVER:STOPIME}",
@@ -18,6 +19,7 @@
 "PHRUDZ": "{PLOVER:HIDEIME}",
 "PHRETS": "{PLOVER:UNDOIME}",
 "PHREDZ": "{PLOVER:SAVEIME}",
+
 "PW*FP": "{#BackSpace}",
 "PW-FP": "{#BackSpace}",
 "R*R": "{#Return}{^}",

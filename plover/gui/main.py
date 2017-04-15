@@ -26,9 +26,9 @@ from plover.gui.paper_tape import StrokeDisplayDialog
 from plover.gui.suggestions import SuggestionsDisplayDialog
 from plover import log
 
-""" MOCKING COMES HERE """
+
 from plover.gui.ime_connection import ImeConnection
-""" ------------------ """
+
 
 from plover import __name__ as __software_name__
 from plover import __version__
@@ -96,7 +96,7 @@ class MainFrame(wx.Frame):
     COMMAND_CONFIGURE = 'CONFIGURE'
     COMMAND_FOCUS = 'FOCUS'
     COMMAND_QUIT = 'QUIT'
-    """ MOCKING COMES HERE """
+
     COMMAND_PAUSEIME = 'PAUSEIME'
     COMMAND_RESUMEIME = 'RESUMEIME'
     COMMAND_STOPIME = 'STOPIME'
@@ -105,15 +105,15 @@ class MainFrame(wx.Frame):
     COMMAND_HIDEIME = 'HIDEIME'
     COMMAND_UNDOIME = 'UNDOIME'
     COMMAND_SAVEIME = 'SAVEIME'
-    """ ------------------ """
+
 
     def __init__(self, config):
         self.config = config
 
-        """ MOCKING COMES HERE """
+
         self.ime_connection = ImeConnection(self)
         self.ime_connection.start()
-        """ ------------------ """
+
 
         # Note: don't set position from config, since it's not yet loaded.
         wx.Frame.__init__(self, None, title=self.TITLE,
@@ -262,7 +262,7 @@ class MainFrame(wx.Frame):
             log.error('engine initialization failed', exc_info=True)
             self._show_config_dialog()
 
-    """ MOCKING COMES HERE """
+
     def getNewConnection(self):
         self.ime_connection = ImeConnection(self)
         self.ime_connection.start()
@@ -272,7 +272,7 @@ class MainFrame(wx.Frame):
         # self.ime_connection.sendMsg('PLOVER:ECHO')
         self.ime_connection.setMsg(msg)
         self.ime_connection.setHasMsg()
-        """ -------------- """
+
 
 
     def _reconnect(self):
@@ -293,7 +293,7 @@ class MainFrame(wx.Frame):
         elif command == self.COMMAND_QUIT:
             wx.CallAfter(self._quit)
             return True
-            """ MOCKING COMES HERE """
+
         elif command == self.COMMAND_PAUSEIME:
             wx.CallAfter(self.sendToIME, 'PAUSE')
             return True
@@ -318,7 +318,7 @@ class MainFrame(wx.Frame):
         elif command == self.COMMAND_SAVEIME:
             wx.CallAfter(self.sendToIME, 'SAVE')
             return True
-            """ ------------------ """
+
 
         if not self.steno_engine.is_running:
             return False

@@ -1,3 +1,5 @@
+""" New Class added """
+
 import socket
 import sys
 import threading
