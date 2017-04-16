@@ -11,6 +11,9 @@ resumes stenotype translation and allows for application configuration.
 
 import sys
 import os
+
+import subprocess
+
 import wx
 import wx.animate
 from wx.lib.utils import AdjustRectToScreen
@@ -268,11 +271,14 @@ class MainFrame(wx.Frame):
         self.ime_connection.start()
    
     def sendToIME(self, msg):
-        print 'PLOVER:ECHO'
-        # self.ime_connection.sendMsg('PLOVER:ECHO')
+        if(not self.ime_connection):
+            return
+        print 'PLOVER:' + msg
         self.ime_connection.setMsg(msg)
         self.ime_connection.setHasMsg()
 
+    def startIMEProcess(self):
+        p = subprocess.Popen(['C:\\Users\\Rol\\Documents\\CodeBlocks\\Projects\\szakdoga_gyak_4\\bin\\Debug\\szakdoga_gyak_4.exe'])
 
 
     def _reconnect(self):
@@ -295,28 +301,29 @@ class MainFrame(wx.Frame):
             return True
 
         elif command == self.COMMAND_PAUSEIME:
-            wx.CallAfter(self.sendToIME, 'PAUSE')
+            wx.CallAfter(self.sendToIME, 'CMD::PAUSE')
             return True
         elif command == self.COMMAND_RESUMEIME:
-            wx.CallAfter(self.sendToIME, 'RESUME')
+            wx.CallAfter(self.sendToIME, 'CMD::RESUME')
             return True
         elif command == self.COMMAND_STOPIME:
-            wx.CallAfter(self.sendToIME, 'STOP')
+            wx.CallAfter(self.sendToIME, 'CMD::STOP')
             return True
         elif command == self.COMMAND_STARTIME:
-            wx.CallAfter(self.sendToIME, 'START')
+            # wx.CallAfter( self.startIMEProcess())
+            self.startIMEProcess()
             return True
         elif command == self.COMMAND_SHOWIME:
-            wx.CallAfter(self.sendToIME, 'SHOW')
+            wx.CallAfter(self.sendToIME, 'CMD::SHOW')
             return True
         elif command == self.COMMAND_HIDEIME:
-            wx.CallAfter(self.sendToIME, 'HIDE')
+            wx.CallAfter(self.sendToIME, 'CMD::HIDE')
             return True
         elif command == self.COMMAND_UNDOIME:
-            wx.CallAfter(self.sendToIME, 'UNDO')
+            wx.CallAfter(self.sendToIME, 'CMD::UNDO')
             return True
         elif command == self.COMMAND_SAVEIME:
-            wx.CallAfter(self.sendToIME, 'SAVE')
+            wx.CallAfter(self.sendToIME, 'CMD::SAVE')
             return True
 
 
@@ -391,8 +398,9 @@ class MainFrame(wx.Frame):
         self.radio_output_enable.SetValue(output_enabled)
 
     def _quit(self, event=None):
-        self.ime_connection.destroy();
-        self.ime_connection.join()
+        if self.ime_connection:
+            self.ime_connection.destroy();
+            self.ime_connection.join()
         if self.steno_engine:
             self.steno_engine.destroy()
         self.Destroy()

@@ -66,5 +66,6 @@ class ImeConnection(threading.Thread):
         self.hasMsgToSend = True
 
     def destroy(self):
+        self.sendMsg('CMD::STOP');
         self.closeConnection()
         self.running = False
