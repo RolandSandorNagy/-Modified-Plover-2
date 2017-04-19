@@ -13,6 +13,8 @@ class ImeConnection(threading.Thread):
     running = True 
     connected = False
     conTryLabel = False
+    hasMsg = False
+    msg = ""
 
     def __init__(self, mainFrame):
         threading.Thread.__init__(self)
@@ -30,6 +32,8 @@ class ImeConnection(threading.Thread):
             if(not connected_K1 and self.connected):
                 print 'connected.'
                 self.conTryLabel = False
+            if(self.connected and self.hasMsg):
+                self.sendMsg(self.msg)
 
     def connectToServer(self):
         try:
@@ -41,9 +45,13 @@ class ImeConnection(threading.Thread):
 
     def sendMsg(self, msg):
         try:                
+            if(not self.connected):
+                print "ime is not connected"
+                return
             self.sock.sendto(msg.encode('utf-8'), (self.address, self.port))
-            if(message == "CMD::STOP"):
-                initVars()
+            self.emptyMsgTray()
+            if(msg == "CMD::STOP"):
+                self.initVars()
             return True
         except Exception as e: 
             self.sock.close()
@@ -52,10 +60,21 @@ class ImeConnection(threading.Thread):
             print 'disconnected.'
             return False
 
+    def setMsg(self, msg):
+        if(not self.connected):
+            return
+        self.msg = msg
+        self.hasMsg = True
+
     def initVars(self):
         self.running = True 
         self.connected = False
         self.conTryLabel = False
+        self.emptyMsgTray()
+
+    def emptyMsgTray(self):
+        self.hasMsg = False
+        self.msg = ""        
 
     def closeSocket(self):
         self.sock.close()
@@ -65,3 +84,4 @@ class ImeConnection(threading.Thread):
         if(self.connected):
             self.sendMsg('CMD::STOP');
         self.running = False
+

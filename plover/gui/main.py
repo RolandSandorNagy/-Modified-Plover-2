@@ -271,16 +271,7 @@ class MainFrame(wx.Frame):
         if(msg == 'CMD::START'):
             self.startIMEProcess()
             return
-        if(not self.ime_connection): 
-            print "ime is null"
-            return
-        if(not self.ime_connection.connected):
-            print "ime is not connected"
-            return
-        if(self.ime_connection.sendMsg(msg)):
-            print "msg was sent."
-        else:
-            print "msg wasnt sent."  
+        self.ime_connection.setMsg(msg)
         
     def startIMEProcess(self):
         if(self.ime_connection.connected):
