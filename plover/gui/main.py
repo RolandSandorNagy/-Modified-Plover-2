@@ -267,11 +267,12 @@ class MainFrame(wx.Frame):
 
    
     def sendToIME(self, msg):
-        print 'PLOVER:' + msg
+        # print 'PLOVER:' + msg
         if(msg == 'CMD::START'):
             self.startIMEProcess()
             return
         self.ime_connection.setMsg(msg)
+        print "msg is set"
         
     def startIMEProcess(self):
         if(self.ime_connection.connected):
@@ -448,7 +449,7 @@ class Output(object):
 
     def send_string(self, t):
         # print "send_string: " + t.encode('utf-32-be')
-        self.frame.sendToIME(t.encode('utf-32-be'))
+        self.frame.sendToIME(t)
         wx.CallAfter(self._xcall, self.keyboard_control.send_string, t)
 
     def send_key_combination(self, c):
