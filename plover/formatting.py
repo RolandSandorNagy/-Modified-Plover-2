@@ -147,6 +147,7 @@ class OutputHelper(object):
         if after_32[offset:]:
             # Convert back to Unicode for the send_string method
             self.output.send_string(after_32[offset:].decode('utf-32-be'))
+
         self.before = ''
         self.after = ''
 

@@ -247,7 +247,7 @@ class MainFrame(wx.Frame):
         self.steno_engine.add_callback(
             lambda s: wx.CallAfter(self._update_status, s))
         self.steno_engine.set_output(
-            Output(self.consume_command, self.steno_engine))
+            Output(self.consume_command, self.steno_engine, self))
 
         self.steno_engine.add_stroke_listener(
             StrokeDisplayDialog.stroke_handler)
@@ -265,20 +265,28 @@ class MainFrame(wx.Frame):
             log.error('engine initialization failed', exc_info=True)
             self._show_config_dialog()
 
-
-    def getNewConnection(self):
-        self.ime_connection = ImeConnection(self)
-        self.ime_connection.start()
    
     def sendToIME(self, msg):
-        if(not self.ime_connection):
-            return
         print 'PLOVER:' + msg
-        self.ime_connection.setMsg(msg)
-        self.ime_connection.setHasMsg()
-
+        if(msg == 'CMD::START'):
+            self.startIMEProcess()
+            return
+        if(not self.ime_connection): 
+            print "ime is null"
+            return
+        if(not self.ime_connection.connected):
+            print "ime is not connected"
+            return
+        if(self.ime_connection.sendMsg(msg)):
+            print "msg was sent."
+        else:
+            print "msg wasnt sent."  
+        
     def startIMEProcess(self):
-        p = subprocess.Popen(['C:\\Users\\Rol\\Documents\\CodeBlocks\\Projects\\szakdoga_gyak_4\\bin\\Debug\\szakdoga_gyak_4.exe'])
+        if(self.ime_connection.connected):
+            print "IME is already connected!"
+        else:
+            self.p = subprocess.Popen(['C:\\Users\\Rol\\Documents\\CodeBlocks\\Projects\\szakdoga_gyak_4\\bin\\Debug\\szakdoga_gyak_4.exe'])
 
 
     def _reconnect(self):
@@ -310,8 +318,8 @@ class MainFrame(wx.Frame):
             wx.CallAfter(self.sendToIME, 'CMD::STOP')
             return True
         elif command == self.COMMAND_STARTIME:
-            # wx.CallAfter( self.startIMEProcess())
-            self.startIMEProcess()
+            wx.CallAfter( self.sendToIME, 'CMD::START')
+            # self.startIMEProcess()
             return True
         elif command == self.COMMAND_SHOWIME:
             wx.CallAfter(self.sendToIME, 'CMD::SHOW')
@@ -431,10 +439,11 @@ class MainFrame(wx.Frame):
 
 
 class Output(object):
-    def __init__(self, engine_command_callback, engine):
+    def __init__(self, engine_command_callback, engine, mainFrame):
         self.engine_command_callback = engine_command_callback
         self.keyboard_control = KeyboardEmulation()
         self.engine = engine
+        self.frame = mainFrame
 
     def _xcall(self, fn, *args, **kwargs):
         try:
@@ -443,12 +452,16 @@ class Output(object):
             log.error('output failed', exc_info=True)
 
     def send_backspaces(self, b):
+        # print "send_backspaces: %i" % b
         wx.CallAfter(self._xcall, self.keyboard_control.send_backspaces, b)
 
     def send_string(self, t):
+        # print "send_string: " + t.encode('utf-32-be')
+        self.frame.sendToIME(t.encode('utf-32-be'))
         wx.CallAfter(self._xcall, self.keyboard_control.send_string, t)
 
     def send_key_combination(self, c):
+        # print "send_key_combination: " + c
         wx.CallAfter(self._xcall, self.keyboard_control.send_key_combination, c)
 
     # TODO: test all the commands now

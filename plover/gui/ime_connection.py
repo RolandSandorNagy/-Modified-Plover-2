@@ -12,60 +12,56 @@ class ImeConnection(threading.Thread):
     port = 12345
     running = True 
     connected = False
-    contry = True
-    hasMsgToSend = False
-    msg = ''
+    conTryLabel = False
 
     def __init__(self, mainFrame):
         threading.Thread.__init__(self)
         self.frame = mainFrame
 
     def run(self):
+        self.initVars()
         while(self.running):
-            con = self.connected
+            connected_K1 = self.connected
             if(not self.connected):
-                if(self.contry):
+                if(not self.conTryLabel):
                     print 'connecting to IME...'
-                    self.contry = False
+                    self.conTryLabel = True
                 self.connected = self.connectToServer()
-            if(not con and self.connected):
+            if(not connected_K1 and self.connected):
                 print 'connected.'
-                self.contry = True
-            if(self.connected and self.hasMsgToSend):
-                if(self.sendMsg(self.msg)):
-                    self.msg = ''
-                    self.hasMsgToSend = False
+                self.conTryLabel = False
 
     def connectToServer(self):
         try:
             self.sock.connect((self.address, self.port)) 
             return True
-        except Exception as e: 
-            self.sock.close()
-            self.sock = socket.socket()
+        except Exception as e:
+            self.closeSocket() 
             return False
 
     def sendMsg(self, msg):
         try:                
             self.sock.sendto(msg.encode('utf-8'), (self.address, self.port))
+            if(message == "CMD::STOP"):
+                initVars()
             return True
         except Exception as e: 
             self.sock.close()
             self.sock = socket.socket()
-            self.connected = False
+            self.initVars()
             print 'disconnected.'
             return False
 
-    def closeConnection(self):
-        self.running = False
+    def initVars(self):
+        self.running = True 
+        self.connected = False
+        self.conTryLabel = False
 
-    def setMsg(self, message):
-        self.msg = message
-    
-    def setHasMsg(self):
-        self.hasMsgToSend = True
+    def closeSocket(self):
+        self.sock.close()
+        self.sock = socket.socket()
 
     def destroy(self):
-        self.sendMsg('CMD::STOP');
-        self.closeConnection()
+        if(self.connected):
+            self.sendMsg('CMD::STOP');
         self.running = False
