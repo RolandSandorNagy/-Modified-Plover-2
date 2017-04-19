@@ -272,7 +272,6 @@ class MainFrame(wx.Frame):
             self.startIMEProcess()
             return
         self.ime_connection.setMsg(msg)
-        print "msg is set"
         
     def startIMEProcess(self):
         if(self.ime_connection.connected):

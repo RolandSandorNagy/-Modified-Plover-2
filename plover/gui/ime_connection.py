@@ -12,6 +12,7 @@ class ImeConnection(threading.Thread):
     port = 12345
     running = True 
     connected = False
+    isActive = False
     conTryLabel = False
     hasMsg = False
     msg = ""
@@ -31,6 +32,7 @@ class ImeConnection(threading.Thread):
                 self.connected = self.connectToServer()
             if(not connected_K1 and self.connected):
                 print 'connected.'
+                self.isActive = True
                 self.conTryLabel = False
             if(self.connected and self.hasMsg):
                 self.sendMsg(self.msg)
@@ -52,6 +54,10 @@ class ImeConnection(threading.Thread):
             self.emptyMsgTray()
             if(msg == "CMD::STOP"):
                 self.initVars()
+            elif(msg == "CMD::PAUSE"):
+                self.isActive = False
+            elif(msg == "CMD::RESUME"):
+                self.isActive = True
             return True
         except Exception as e: 
             self.sock.close()
@@ -61,14 +67,16 @@ class ImeConnection(threading.Thread):
             return False
 
     def setMsg(self, msg):
-        if(not self.connected):
+        if(not self.connected or (not self.isActive and msg != "CMD::RESUME")):
             return
         self.msg = msg
         self.hasMsg = True
+        print "msg is set"
 
     def initVars(self):
         self.running = True 
         self.connected = False
+        self.isActive = False
         self.conTryLabel = False
         self.emptyMsgTray()
 
