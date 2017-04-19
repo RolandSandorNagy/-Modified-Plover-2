@@ -318,9 +318,9 @@ class MainFrame(wx.Frame):
         elif command == self.COMMAND_HIDEIME:
             wx.CallAfter(self.sendToIME, 'CMD::HIDE')
             return True
-        elif command == self.COMMAND_UNDOIME:
-            wx.CallAfter(self.sendToIME, 'CMD::UNDO')
-            return True
+        # elif command == self.COMMAND_UNDOIME:
+            # wx.CallAfter(self.sendToIME, 'CMD::UNDO')
+            # return True
         elif command == self.COMMAND_SAVEIME:
             wx.CallAfter(self.sendToIME, 'CMD::SAVE')
             return True
@@ -443,7 +443,8 @@ class Output(object):
             log.error('output failed', exc_info=True)
 
     def send_backspaces(self, b):
-        # print "send_backspaces: %i" % b
+        print "send_backspaces: %i" % b
+        self.frame.sendToIME('CMD::UNDO')
         wx.CallAfter(self._xcall, self.keyboard_control.send_backspaces, b)
 
     def send_string(self, t):
