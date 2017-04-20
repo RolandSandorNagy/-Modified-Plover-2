@@ -79,6 +79,7 @@ class MainFrame(wx.Frame):
     ALERT_DIALOG_TITLE = TITLE
     CONNECTED_IMAGE_FILE = os.path.join(ASSETS_DIR, 'connected.png')
     DISCONNECTED_IMAGE_FILE = os.path.join(ASSETS_DIR, 'disconnected.png')
+    PAUSED_IMAGE_FILE = os.path.join(ASSETS_DIR, 'paused.png')
     REFRESH_IMAGE_FILE = os.path.join(ASSETS_DIR, 'refresh.png')
     PLOVER_ICON_FILE = os.path.join(ASSETS_DIR, 'plover.ico')
     BORDER = 5
@@ -108,6 +109,10 @@ class MainFrame(wx.Frame):
     COMMAND_HIDEIME = 'HIDEIME'
     COMMAND_UNDOIME = 'UNDOIME'
     COMMAND_SAVEIME = 'SAVEIME'
+
+    IME_IS_CONNECTED = 2
+    IME_IS_PAUSED = 1
+    IME_IS_DISCONNECTED = 0
 
 
     def __init__(self, config):
@@ -166,8 +171,14 @@ class MainFrame(wx.Frame):
                                           wx.BITMAP_TYPE_PNG)
         self.disconnected_bitmap = wx.Bitmap(self.DISCONNECTED_IMAGE_FILE, 
                                              wx.BITMAP_TYPE_PNG)
+        self.paused_bitmap = wx.Bitmap(self.PAUSED_IMAGE_FILE, 
+                                             wx.BITMAP_TYPE_PNG)
         self.connection_ctrl = wx.StaticBitmap(root,
                                                bitmap=self.disconnected_bitmap)
+
+        self.ime_connection_ctrl = wx.StaticBitmap(root,
+                                               bitmap=self.disconnected_bitmap)
+
 
         border_flag = wx.SizerFlags(1).Border(wx.ALL, self.BORDER)
 
@@ -204,6 +215,16 @@ class MainFrame(wx.Frame):
         self.reconnect_button = wx.BitmapButton(root, bitmap=refresh_bitmap)
         machine_sizer.AddF(self.reconnect_button, center_flag)
 
+        # Create IME Status Box
+        IME_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        IME_sizer.AddF(self.spinner, center_flag)
+        IME_sizer.AddF(self.ime_connection_ctrl, center_flag)        
+        self.ime_status_text = wx.StaticText(root, label="PloverHelper IME       ")
+        IME_sizer.AddF(self.ime_status_text, center_flag)
+        refresh_ime_bitmap = wx.Bitmap(self.REFRESH_IMAGE_FILE, wx.BITMAP_TYPE_PNG)          
+        self.reconnect_ime_button = wx.BitmapButton(root, bitmap=refresh_ime_bitmap)
+        IME_sizer.AddF(self.reconnect_ime_button, center_flag)
+
         # Assemble main UI
         global_sizer = wx.GridBagSizer(vgap=self.BORDER, hgap=self.BORDER)
         global_sizer.Add(settings_sizer,
@@ -220,6 +241,12 @@ class MainFrame(wx.Frame):
                          pos=(2, 0),
                          border=self.BORDER,
                          span=(1, 2))
+        global_sizer.Add(IME_sizer,
+                         flag=wx.CENTER | wx.ALIGN_CENTER | wx.EXPAND | wx.LEFT,
+                         pos=(3, 0),
+                         border=self.BORDER,
+                         span=(1, 2))
+
         self.machine_sizer = machine_sizer
         # Add a border around the entire sizer.
         border = wx.BoxSizer()
@@ -231,6 +258,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self._quit)
         self.Bind(wx.EVT_MOVE, self.on_move)
         self.reconnect_button.Bind(wx.EVT_BUTTON, lambda e: self._reconnect())
+        self.reconnect_ime_button.Bind(wx.EVT_BUTTON, lambda e: self.startIMEProcess())
 
         try:
             with open(config.target_file, 'rb') as f:
@@ -279,6 +307,13 @@ class MainFrame(wx.Frame):
         else:
             self.p = subprocess.Popen(['C:\\Users\\Rol\\Documents\\CodeBlocks\\Projects\\szakdoga_gyak_4\\bin\\Debug\\szakdoga_gyak_4.exe'])
 
+    def updateImeStatus(self, status):
+        if(status == self.IME_IS_CONNECTED):
+            self.ime_connection_ctrl.SetBitmap(self.connected_bitmap)
+        elif(status == self.IME_IS_PAUSED):
+            self.ime_connection_ctrl.SetBitmap(self.paused_bitmap)
+        elif(status == self.IME_IS_DISCONNECTED):
+            self.ime_connection_ctrl.SetBitmap(self.disconnected_bitmap)
 
     def _reconnect(self):
         try:

@@ -17,6 +17,10 @@ class ImeConnection(threading.Thread):
     hasMsg = False
     msg = ""
 
+    IME_IS_CONNECTED = 2
+    IME_IS_PAUSED = 1
+    IME_IS_DISCONNECTED = 0
+
     def __init__(self, mainFrame):
         threading.Thread.__init__(self)
         self.frame = mainFrame
@@ -32,6 +36,7 @@ class ImeConnection(threading.Thread):
                 self.connected = self.connectToServer()
             if(not connected_K1 and self.connected):
                 print 'connected.'
+                self.frame.updateImeStatus(self.IME_IS_CONNECTED)                
                 self.isActive = True
                 self.conTryLabel = False
             if(self.connected and self.hasMsg):
@@ -53,10 +58,13 @@ class ImeConnection(threading.Thread):
             self.sock.sendto(msg.encode('utf-8'), (self.address, self.port))
             self.emptyMsgTray()
             if(msg == "CMD::STOP"):
+                self.frame.updateImeStatus(self.IME_IS_DISCONNECTED)
                 self.initVars()
             elif(msg == "CMD::PAUSE"):
+                self.frame.updateImeStatus(self.IME_IS_PAUSED)
                 self.isActive = False
             elif(msg == "CMD::RESUME"):
+                self.frame.updateImeStatus(self.IME_IS_CONNECTED)                
                 self.isActive = True
             return True
         except Exception as e: 
