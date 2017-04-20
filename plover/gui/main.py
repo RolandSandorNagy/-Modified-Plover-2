@@ -81,6 +81,8 @@ class MainFrame(wx.Frame):
     DISCONNECTED_IMAGE_FILE = os.path.join(ASSETS_DIR, 'disconnected.png')
     PAUSED_IMAGE_FILE = os.path.join(ASSETS_DIR, 'paused.png')
     REFRESH_IMAGE_FILE = os.path.join(ASSETS_DIR, 'refresh.png')
+    CONNECT_IME_IMAGE_FILE = os.path.join(ASSETS_DIR, 'connect.png')
+    DISCONNECT_IME_IMAGE_FILE = os.path.join(ASSETS_DIR, 'disconnect.png')
     PLOVER_ICON_FILE = os.path.join(ASSETS_DIR, 'plover.ico')
     BORDER = 5
     STATUS_DISCONNECTED, STATUS_OUTPUT_DISABLED, STATUS_OUTPUT_ENABLED = range(-1, 2)
@@ -179,6 +181,10 @@ class MainFrame(wx.Frame):
         self.ime_connection_ctrl = wx.StaticBitmap(root,
                                                bitmap=self.disconnected_bitmap)
 
+        self.connect_bitmap = wx.Bitmap(self.CONNECT_IME_IMAGE_FILE, 
+                                             wx.BITMAP_TYPE_PNG)
+        self.disconnect_bitmap = wx.Bitmap(self.DISCONNECT_IME_IMAGE_FILE, 
+                                             wx.BITMAP_TYPE_PNG)
 
         border_flag = wx.SizerFlags(1).Border(wx.ALL, self.BORDER)
 
@@ -219,10 +225,10 @@ class MainFrame(wx.Frame):
         IME_sizer = wx.BoxSizer(wx.HORIZONTAL)
         IME_sizer.AddF(self.spinner, center_flag)
         IME_sizer.AddF(self.ime_connection_ctrl, center_flag)        
-        self.ime_status_text = wx.StaticText(root, label="PloverHelper IME       ")
+        self.ime_status_text = wx.StaticText(root, label="Plover Helper IME      ")
         IME_sizer.AddF(self.ime_status_text, center_flag)
-        refresh_ime_bitmap = wx.Bitmap(self.REFRESH_IMAGE_FILE, wx.BITMAP_TYPE_PNG)          
-        self.reconnect_ime_button = wx.BitmapButton(root, bitmap=refresh_ime_bitmap)
+        connect_ime_bitmap = wx.Bitmap(self.CONNECT_IME_IMAGE_FILE, wx.BITMAP_TYPE_PNG)          
+        self.reconnect_ime_button = wx.BitmapButton(root, bitmap=connect_ime_bitmap)
         IME_sizer.AddF(self.reconnect_ime_button, center_flag)
 
         # Assemble main UI
@@ -304,16 +310,19 @@ class MainFrame(wx.Frame):
     def startIMEProcess(self):
         if(self.ime_connection.connected):
             print "IME is already connected!"
+            self.sendToIME("CMD::STOP")
         else:
             self.p = subprocess.Popen(['C:\\Users\\Rol\\Documents\\CodeBlocks\\Projects\\szakdoga_gyak_4\\bin\\Debug\\szakdoga_gyak_4.exe'])
 
     def updateImeStatus(self, status):
         if(status == self.IME_IS_CONNECTED):
             self.ime_connection_ctrl.SetBitmap(self.connected_bitmap)
+            self.reconnect_ime_button.SetBitmap(self.disconnect_bitmap)
         elif(status == self.IME_IS_PAUSED):
             self.ime_connection_ctrl.SetBitmap(self.paused_bitmap)
         elif(status == self.IME_IS_DISCONNECTED):
             self.ime_connection_ctrl.SetBitmap(self.disconnected_bitmap)
+            self.reconnect_ime_button.SetBitmap(self.connect_bitmap)
 
     def _reconnect(self):
         try:
