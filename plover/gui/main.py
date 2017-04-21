@@ -121,10 +121,6 @@ class MainFrame(wx.Frame):
         self.config = config
 
 
-        self.ime_connection = ImeConnection(self)
-        self.ime_connection.start()
-
-
         # Note: don't set position from config, since it's not yet loaded.
         wx.Frame.__init__(self, None, title=self.TITLE,
                           style=wx.DEFAULT_FRAME_STYLE & ~(wx.RESIZE_BORDER |
@@ -228,8 +224,8 @@ class MainFrame(wx.Frame):
         self.ime_status_text = wx.StaticText(root, label="Plover Helper IME      ")
         IME_sizer.AddF(self.ime_status_text, center_flag)
         connect_ime_bitmap = wx.Bitmap(self.CONNECT_IME_IMAGE_FILE, wx.BITMAP_TYPE_PNG)          
-        self.reconnect_ime_button = wx.BitmapButton(root, bitmap=connect_ime_bitmap)
-        IME_sizer.AddF(self.reconnect_ime_button, center_flag)
+        self.ime_connection_button = wx.BitmapButton(root, bitmap=connect_ime_bitmap)
+        IME_sizer.AddF(self.ime_connection_button, center_flag)
 
         # Assemble main UI
         global_sizer = wx.GridBagSizer(vgap=self.BORDER, hgap=self.BORDER)
@@ -264,7 +260,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self._quit)
         self.Bind(wx.EVT_MOVE, self.on_move)
         self.reconnect_button.Bind(wx.EVT_BUTTON, lambda e: self._reconnect())
-        self.reconnect_ime_button.Bind(wx.EVT_BUTTON, lambda e: self.startIMEProcess())
+        self.ime_connection_button.Bind(wx.EVT_BUTTON, lambda e: self.startIMEProcess())
 
         try:
             with open(config.target_file, 'rb') as f:
@@ -293,6 +289,12 @@ class MainFrame(wx.Frame):
         if self.config.get_show_suggestions_display():
             SuggestionsDisplayDialog.display(self, self.config, self.steno_engine)
 
+        self.ime_connection = ImeConnection(self)
+        self.ime_connection.start()
+
+        if(self.config.get_start_ime_on_startup()):
+            self.startIMEProcess()
+            
         try:
             app.init_engine(self.steno_engine, self.config)
         except Exception:
@@ -312,17 +314,18 @@ class MainFrame(wx.Frame):
             print "IME is already connected!"
             self.sendToIME("CMD::STOP")
         else:
-            self.p = subprocess.Popen(['C:\\Users\\Rol\\Documents\\CodeBlocks\\Projects\\szakdoga_gyak_4\\bin\\Debug\\szakdoga_gyak_4.exe'])
+            self.p = subprocess.Popen([self.config.get_ime_exe_file()])
+            # self.p = subprocess.Popen(['C:\\Users\\Rol\\Documents\\CodeBlocks\\Projects\\szakdoga_gyak_4\\bin\\Debug\\szakdoga_gyak_4.exe'])
 
     def updateImeStatus(self, status):
         if(status == self.IME_IS_CONNECTED):
             self.ime_connection_ctrl.SetBitmap(self.connected_bitmap)
-            self.reconnect_ime_button.SetBitmap(self.disconnect_bitmap)
+            self.ime_connection_button.SetBitmap(self.disconnect_bitmap)
         elif(status == self.IME_IS_PAUSED):
             self.ime_connection_ctrl.SetBitmap(self.paused_bitmap)
         elif(status == self.IME_IS_DISCONNECTED):
             self.ime_connection_ctrl.SetBitmap(self.disconnected_bitmap)
-            self.reconnect_ime_button.SetBitmap(self.connect_bitmap)
+            self.ime_connection_button.SetBitmap(self.connect_bitmap)
 
     def _reconnect(self):
         try:

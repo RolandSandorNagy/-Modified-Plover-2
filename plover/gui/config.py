@@ -33,12 +33,22 @@ LOOKUP_BUTTON_NAME = "Lookup"
 MACHINE_CONFIG_TAB_NAME = "Machine"
 DISPLAY_CONFIG_TAB_NAME = "Display"
 OUTPUT_CONFIG_TAB_NAME = "Output"
+
+IME_CONFIG_TAB_NAME = "Ime"
+
 DICTIONARY_CONFIG_TAB_NAME = "Dictionary"
 LOGGING_CONFIG_TAB_NAME = "Logging"
 SAVE_CONFIG_BUTTON_NAME = "Save"
 MACHINE_LABEL = "Stenotype Machine:"
+
+SUGGEST_BY_LABEL = "Suggest by:"
+
 MACHINE_AUTO_START_LABEL = "Automatically Start"
 LOG_FILE_LABEL = "Log File:"
+
+IME_LOC_LABEL = "ime location:"
+IME_EXE_FILE_DIALOG_TITLE = "Select path to ime"
+
 LOG_STROKES_LABEL = "Log Strokes"
 LOG_TRANSLATIONS_LABEL = "Log Translations"
 LOG_FILE_DIALOG_TITLE = "Select a Log File"
@@ -48,6 +58,11 @@ SPACE_PLACEMENT_BEFORE = "Before Output"
 SPACE_PLACEMENT_AFTER = "After Output"
 SPACE_PLACEMENTS = [SPACE_PLACEMENT_BEFORE, SPACE_PLACEMENT_AFTER]
 UNDO_LEVELS_LABEL = "Stroke Undo Limit:"
+
+IME_POPUP_HIDE_TIMEOUT = "Popup hide timeout:"
+IME_CON_HOST_NAME = "Host name:"
+IME_CON_PORT_NUMBER = "Port number:"
+
 FIRST_STROKE_LABEL = "First Stroke:"
 START_CAPITALIZED_LABEL = "Start Capitalized"
 START_ATTACHED_LABEL = "Suppress Space"
@@ -110,12 +125,16 @@ class ConfigurationDialog(wx.Dialog):
         self.display_config = DisplayConfig(self.config, notebook, self.engine)
         self.output_config = OutputConfig(self.config, notebook)
 
+        self.ime_config = ImeConfig(self.config, notebook)
+
         # Adding each tab
         notebook.AddPage(self.machine_config, MACHINE_CONFIG_TAB_NAME)
         notebook.AddPage(self.dictionary_config, DICTIONARY_CONFIG_TAB_NAME)
         notebook.AddPage(self.logging_config, LOGGING_CONFIG_TAB_NAME)
         notebook.AddPage(self.display_config, DISPLAY_CONFIG_TAB_NAME)
         notebook.AddPage(self.output_config, OUTPUT_CONFIG_TAB_NAME)
+
+        notebook.AddPage(self.ime_config, IME_CONFIG_TAB_NAME)
 
         sizer.Add(notebook, proportion=1, flag=wx.EXPAND)
 
@@ -168,6 +187,7 @@ class ConfigurationDialog(wx.Dialog):
         self.logging_config.save()
         self.display_config.save()
         self.output_config.save()
+        self.ime_config.save()
 
         try:
             update_engine(self.engine, self.config)
@@ -693,3 +713,160 @@ class OutputConfig(wx.Panel):
         self.config.set_start_attached(self.start_attached.GetValue())
         self.config.set_start_capitalized(self.start_capitalized.GetValue())
         self.config.set_undo_levels(self.buffer_selector.GetValue())
+
+class ImeConfig(wx.Panel):
+    """Display configuration graphical user interface."""
+
+    START_IME_TEXT = "Open ime on startup"
+
+    def __init__(self, config, parent):
+        """Create a configuration component based on the given Config.
+
+        Arguments:
+
+        config -- A Config object.
+
+        parent -- This component's parent component.
+
+        """
+        wx.Panel.__init__(self, parent)
+        self.config = config
+        gap = COMPONENT_SPACE * 3
+
+        # ------------------------------------
+
+        grid1 = wx.GridBagSizer(gap, gap)
+
+        self.start_ime = wx.CheckBox(
+            self, label=self.START_IME_TEXT)
+        self.start_ime.SetValue(config.get_start_ime_on_startup())
+
+        grid1.Add(self.start_ime,
+                  pos=(0, 0),
+                  flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+
+        # ------------------------------------
+
+        grid1.Add(wx.StaticText(self, label=IME_POPUP_HIDE_TIMEOUT),
+                  pos=(1, 0),
+                  flag=wx.ALIGN_CENTER_VERTICAL)
+
+        buffer_selector = wx.SpinCtrl(self)
+        buffer_selector.SetRange(conf.MINIMUM_IME_POPUP_HIDE_TIMEPUT,
+                                 60)
+        buffer_selector.SetValue(self.config.get_ime_popup_timeout())
+        grid1.Add(buffer_selector,
+                  pos=(1, 1),
+                  flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+
+        self.popup_timeout = buffer_selector
+
+        # ------------------------------------
+
+        sizer = wx.FlexGridSizer(2, 3)
+        sizer.AddGrowableCol(1)
+
+        sizer_flags = wx.SizerFlags(1) \
+            .Align(wx.ALIGN_CENTER_VERTICAL) \
+            .Border(wx.ALL, UI_BORDER)
+
+        sizer.AddF(
+            wx.StaticText(self, label=SUGGEST_BY_LABEL),
+            sizer_flags.Left())
+        self.choice = wx.Choice(self, choices=["1","2","3","4"])
+        self.choice.SetStringSelection(self.mapSuggestBy_its(self.config.get_ime_suggest_by()))
+        sizer.AddF(self.choice, sizer_flags.Expand())
+        self.Bind(wx.EVT_CHOICE, self._update, self.choice)
+
+        # ------------------------------------
+
+        locsizer = wx.BoxSizer(wx.VERTICAL)
+
+        ime_exe_file = config.get_ime_exe_file()
+        ime_exe_file = os.path.join(conf.CONFIG_DIR, ime_exe_file)
+        ime_dir = os.path.split(ime_exe_file)[0]
+        self.file_browser = filebrowse.FileBrowseButton(
+            self,
+            labelText=IME_LOC_LABEL,
+            fileMask='*' + conf.EXE_EXTENSION,
+            fileMode=wx.SAVE,
+            dialogTitle=IME_EXE_FILE_DIALOG_TITLE,
+            initialValue=ime_exe_file,
+            startDirectory=ime_dir,
+            )
+        locsizer.Add(self.file_browser, border=UI_BORDER, flag=wx.ALL | wx.EXPAND)
+
+        # --------------------------------------
+
+        grid2 = wx.GridBagSizer(gap, gap)
+
+        grid2.Add(wx.StaticText(self, label=IME_CON_HOST_NAME),
+                  pos=(0, 0),
+                  flag=wx.ALIGN_CENTER_VERTICAL)
+
+        self.tc = wx.TextCtrl(self)
+        self.tc.SetValue(self.config.get_ime_host())
+        grid2.Add(self.tc,
+                  pos=(0, 1),
+                  flag=wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL)
+
+
+
+        grid2.Add(wx.StaticText(self, label=IME_CON_PORT_NUMBER),
+                  pos=(1, 0),
+                  flag=wx.ALIGN_CENTER_VERTICAL)
+
+        buffer_selector2 = wx.SpinCtrl(self)
+        buffer_selector2.SetRange(conf.MINIMUM_PORT_NUMBER,
+                                 conf.MAXIMUM_PORT_NUMBER)
+        buffer_selector2.SetValue(self.config.get_ime_port())
+        grid2.Add(buffer_selector2,
+                  pos=(1, 1),
+                  flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+
+        self.buffer_selector2 = buffer_selector2
+
+        # --------------------------------------
+
+        border = wx.BoxSizer(wx.VERTICAL)
+        border.AddF(grid1, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(sizer, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(locsizer, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(grid2, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+
+        self.SetSizer(border)
+
+    def _update(self, event=None):
+        # Refreshes the UI to reflect current data.
+        print "update"
+
+    def save(self):
+        """Write all parameters to the config."""
+        self.config.set_start_ime_on_startup(self.start_ime.GetValue())
+        self.config.set_ime_popup_timeout(self.popup_timeout.GetValue())
+        suggest_by = self.mapSuggestBy_sti(self.choice.GetStringSelection())
+        self.config.set_ime_suggest_by(suggest_by)
+        self.config.set_ime_exe_file(self.file_browser.GetValue())
+        self.config.set_ime_host(self.tc.GetValue())
+        self.config.set_ime_port(self.buffer_selector2.GetValue())
+        print "ime config save"
+
+    def mapSuggestBy_sti(self, str):
+        if(str == "1"):
+            return 1
+        elif(str == "2"):
+            return 2
+        elif(str == "3"):
+            return 3
+        elif(str == "4"):
+            return 4
+
+    def mapSuggestBy_its(self, i):
+        if(i == 1):
+            return "1"
+        elif(i == 2):
+            return "2"
+        elif(i == 3):
+            return "3"
+        elif(i == 4):
+            return "4"

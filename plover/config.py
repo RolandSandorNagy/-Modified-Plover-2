@@ -77,12 +77,43 @@ DEFAULT_SUGGESTIONS_DISPLAY_X = -1
 SUGGESTIONS_DISPLAY_Y_OPTION = 'y'
 DEFAULT_SUGGESTIONS_DISPLAY_Y = -1
 
+
+
+IME_CONFIG_SECTION = 'Ime Configuration'
+IME_ON_STARTUP_OPTION = 'startup'
+DEFAULT_IME_ON_STARTUP = False
+IME_POPUP_TIMEOUT_OPTION = 'popup_timeout'
+DEFAULT_IME_POPUP_TIMEOUT = 0
+IME_SUGGEST_BY_OPTION = 'suggest_by'
+DEFAULT_IME_SUGGEST_BY = 1
+IME_EXE_FILE_OPTION = 'ime_exe_file'
+DEFAULT_IME_EXE_FILE = 'ime.exe'
+IME_HOST_OPTION = 'host'
+DEFAULT_IME_HOST = 'localhost'
+IME_PORT_OPTION = 'port'
+DEFAULT_IME_PORT = 12345
+
+
+SUGGESTIONS_DISPLAY_SHOW_OPTION = 'show'
+DEFAULT_SUGGESTIONS_DISPLAY_SHOW = False
+SUGGESTIONS_DISPLAY_ON_TOP_OPTION = 'on_top'
+DEFAULT_SUGGESTIONS_DISPLAY_ON_TOP = True
+SUGGESTIONS_DISPLAY_X_OPTION = 'x'
+DEFAULT_SUGGESTIONS_DISPLAY_X = -1
+SUGGESTIONS_DISPLAY_Y_OPTION = 'y'
+DEFAULT_SUGGESTIONS_DISPLAY_Y = -1
+
 OUTPUT_CONFIG_SECTION = 'Output Configuration'
 OUTPUT_CONFIG_SPACE_PLACEMENT_OPTION = 'space_placement'
 DEFAULT_OUTPUT_CONFIG_SPACE_PLACEMENT = 'Before Output'
 OUTPUT_CONFIG_UNDO_LEVELS = 'undo_levels'
 DEFAULT_OUTPUT_CONFIG_UNDO_LEVELS = 100
 MINIMUM_OUTPUT_CONFIG_UNDO_LEVELS = 1
+
+MINIMUM_IME_POPUP_HIDE_TIMEPUT = 0
+MINIMUM_PORT_NUMBER = 0
+MAXIMUM_PORT_NUMBER = 65535
+
 OUTPUT_CONFIG_START_CAPITALIZED = 'start_capitalized'
 DEFAULT_OUTPUT_CONFIG_START_CAPITALIZED = False
 OUTPUT_CONFIG_START_ATTACHED = 'start_attached'
@@ -146,6 +177,7 @@ RTF_EXTENSION = '.rtf'
 
 # Logging constants.
 LOG_EXTENSION = '.log'
+EXE_EXTENSION = '.exe'
 
 
 MIN_FRAME_OPACITY = 0
@@ -293,6 +325,61 @@ class Config(object):
     def get_show_suggestions_display(self):
         return self._get_bool(SUGGESTIONS_DISPLAY_SECTION,
             SUGGESTIONS_DISPLAY_SHOW_OPTION, DEFAULT_SUGGESTIONS_DISPLAY_SHOW)
+
+
+
+
+
+
+    def set_start_ime_on_startup(self, b):
+        self._set(IME_CONFIG_SECTION, IME_ON_STARTUP_OPTION, b)
+
+    def get_start_ime_on_startup(self):
+        return self._get_bool(IME_CONFIG_SECTION,
+            IME_ON_STARTUP_OPTION, DEFAULT_IME_ON_STARTUP)
+
+    def set_ime_popup_timeout(self, b):
+        self._set(IME_CONFIG_SECTION, IME_POPUP_TIMEOUT_OPTION, b)
+
+    def get_ime_popup_timeout(self):
+        return self._get_int(IME_CONFIG_SECTION,
+            IME_POPUP_TIMEOUT_OPTION, DEFAULT_IME_POPUP_TIMEOUT)
+
+    def set_ime_suggest_by(self, b):
+        self._set(IME_CONFIG_SECTION, IME_SUGGEST_BY_OPTION, b)
+
+    def get_ime_suggest_by(self):
+        return self._get_int(IME_CONFIG_SECTION,
+            IME_SUGGEST_BY_OPTION, DEFAULT_IME_SUGGEST_BY)
+
+    def set_ime_exe_file(self, filename):
+        filename = shorten_path(filename)
+        self._set(IME_CONFIG_SECTION, IME_EXE_FILE_OPTION, filename)
+
+    def get_ime_exe_file(self):
+        filename = self._get(IME_CONFIG_SECTION, IME_EXE_FILE_OPTION,
+                             DEFAULT_IME_EXE_FILE)
+        return expand_path(filename)
+
+    def set_ime_host(self, host):
+        self._set(IME_CONFIG_SECTION, IME_HOST_OPTION, host)
+
+    def get_ime_host(self):
+        host = self._get(IME_CONFIG_SECTION, IME_HOST_OPTION,
+                             DEFAULT_IME_HOST)
+        return host
+
+    def set_ime_port(self, port):
+        self._set(IME_CONFIG_SECTION, IME_PORT_OPTION, port)
+
+    def get_ime_port(self):
+        port = self._get_int(IME_CONFIG_SECTION, IME_PORT_OPTION,
+                             DEFAULT_IME_PORT)
+        return port
+
+
+
+
 
     def get_space_placement(self):
         return self._get(OUTPUT_CONFIG_SECTION, OUTPUT_CONFIG_SPACE_PLACEMENT_OPTION, 

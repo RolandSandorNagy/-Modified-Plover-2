@@ -8,7 +8,7 @@ import threading
 class ImeConnection(threading.Thread):
 
     sock = socket.socket()
-    address = 'localhost'
+    host = 'localhost'
     port = 12345
     running = True 
     connected = False
@@ -24,6 +24,8 @@ class ImeConnection(threading.Thread):
     def __init__(self, mainFrame):
         threading.Thread.__init__(self)
         self.frame = mainFrame
+        self.host = mainFrame.config.get_ime_host()
+        self.port = mainFrame.config.get_ime_port()
 
     def run(self):
         self.initVars()
@@ -44,7 +46,7 @@ class ImeConnection(threading.Thread):
 
     def connectToServer(self):
         try:
-            self.sock.connect((self.address, self.port)) 
+            self.sock.connect((self.host, self.port)) 
             return True
         except Exception as e:
             self.closeSocket() 
@@ -55,7 +57,7 @@ class ImeConnection(threading.Thread):
             if(not self.connected):
                 print "ime is not connected"
                 return
-            self.sock.sendto(msg.encode('utf-8'), (self.address, self.port))
+            self.sock.sendto(msg.encode('utf-8'), (self.host, self.port))
             self.emptyMsgTray()
             if(msg == "CMD::STOP"):
                 self.frame.updateImeStatus(self.IME_IS_DISCONNECTED)
