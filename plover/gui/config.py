@@ -35,6 +35,7 @@ DISPLAY_CONFIG_TAB_NAME = "Display"
 OUTPUT_CONFIG_TAB_NAME = "Output"
 
 IME_CONFIG_TAB_NAME = "Ime"
+START_IME_TEXT = "Open ime on startup"
 
 DICTIONARY_CONFIG_TAB_NAME = "Dictionary"
 LOGGING_CONFIG_TAB_NAME = "Logging"
@@ -717,8 +718,6 @@ class OutputConfig(wx.Panel):
 class ImeConfig(wx.Panel):
     """Display configuration graphical user interface."""
 
-    START_IME_TEXT = "Open ime on startup"
-
     def __init__(self, config, parent):
         """Create a configuration component based on the given Config.
 
@@ -738,7 +737,7 @@ class ImeConfig(wx.Panel):
         grid1 = wx.GridBagSizer(gap, gap)
 
         self.start_ime = wx.CheckBox(
-            self, label=self.START_IME_TEXT)
+            self, label=START_IME_TEXT)
         self.start_ime.SetValue(config.get_start_ime_on_startup())
 
         grid1.Add(self.start_ime,
