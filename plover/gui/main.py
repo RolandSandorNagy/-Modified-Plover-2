@@ -112,6 +112,15 @@ class MainFrame(wx.Frame):
     COMMAND_UNDOIME = 'UNDOIME'
     COMMAND_SAVEIME = 'SAVEIME'
 
+    IME_CMD_STOP = "CMD::STOP"
+    IME_CMD_START = "CMD::START"
+    IME_CMD_PAUSE = "CMD::PAUSE"
+    IME_CMD_RESUME = "CMD::RESUME"
+    IME_CMD_SHOW = "CMD::SHOW"
+    IME_CMD_HIDE = "CMD::HIDE"
+    IME_CMD_SAVE = "CMD::SAVE"
+    IME_CMD_UNDO = 'CMD::UNDO'
+
     IME_IS_CONNECTED = 2
     IME_IS_PAUSED = 1
     IME_IS_DISCONNECTED = 0
@@ -303,19 +312,16 @@ class MainFrame(wx.Frame):
 
    
     def sendToIME(self, msg):
-        # print 'PLOVER:' + msg
-        if(msg == 'CMD::START'):
+        if(msg == self.IME_CMD_START):
             self.startIMEProcess()
             return
         self.ime_connection.setMsg(msg)
         
     def startIMEProcess(self):
         if(self.ime_connection.connected):
-            print "IME is already connected!"
-            self.sendToIME("CMD::STOP")
+            self.sendToIME(self.IME_CMD_STOP)
         else:
             self.p = subprocess.Popen([self.config.get_ime_exe_file()])
-            # self.p = subprocess.Popen(['C:\\Users\\Rol\\Documents\\CodeBlocks\\Projects\\szakdoga_gyak_4\\bin\\Debug\\szakdoga_gyak_4.exe'])
 
     def updateImeStatus(self, status):
         if(status == self.IME_IS_CONNECTED):
@@ -345,33 +351,27 @@ class MainFrame(wx.Frame):
         elif command == self.COMMAND_QUIT:
             wx.CallAfter(self._quit)
             return True
-
         elif command == self.COMMAND_PAUSEIME:
-            wx.CallAfter(self.sendToIME, 'CMD::PAUSE')
+            wx.CallAfter(self.sendToIME, self.IME_CMD_PAUSE)
             return True
         elif command == self.COMMAND_RESUMEIME:
-            wx.CallAfter(self.sendToIME, 'CMD::RESUME')
+            wx.CallAfter(self.sendToIME, self.IME_CMD_RESUME)
             return True
         elif command == self.COMMAND_STOPIME:
-            wx.CallAfter(self.sendToIME, 'CMD::STOP')
+            wx.CallAfter(self.sendToIME, self.IME_CMD_STOP)
             return True
         elif command == self.COMMAND_STARTIME:
-            wx.CallAfter( self.sendToIME, 'CMD::START')
-            # self.startIMEProcess()
+            wx.CallAfter( self.sendToIME, self.IME_CMD_START)
             return True
         elif command == self.COMMAND_SHOWIME:
-            wx.CallAfter(self.sendToIME, 'CMD::SHOW')
+            wx.CallAfter(self.sendToIME, self.IME_CMD_SHOW)
             return True
         elif command == self.COMMAND_HIDEIME:
-            wx.CallAfter(self.sendToIME, 'CMD::HIDE')
+            wx.CallAfter(self.sendToIME, self.IME_CMD_HIDE)
             return True
-        # elif command == self.COMMAND_UNDOIME:
-            # wx.CallAfter(self.sendToIME, 'CMD::UNDO')
-            # return True
         elif command == self.COMMAND_SAVEIME:
-            wx.CallAfter(self.sendToIME, 'CMD::SAVE')
+            wx.CallAfter(self.sendToIME, self.IME_CMD_SAVE)
             return True
-
 
         if not self.steno_engine.is_running:
             return False
@@ -490,17 +490,14 @@ class Output(object):
             log.error('output failed', exc_info=True)
 
     def send_backspaces(self, b):
-        print "send_backspaces: %i" % b
-        self.frame.sendToIME('CMD::UNDO')
+        self.frame.sendToIME(self.frame.IME_CMD_UNDO)
         wx.CallAfter(self._xcall, self.keyboard_control.send_backspaces, b)
 
     def send_string(self, t):
-        # print "send_string: " + t.encode('utf-32-be')
         self.frame.sendToIME(t)
         wx.CallAfter(self._xcall, self.keyboard_control.send_string, t)
 
     def send_key_combination(self, c):
-        # print "send_key_combination: " + c
         wx.CallAfter(self._xcall, self.keyboard_control.send_key_combination, c)
 
     # TODO: test all the commands now

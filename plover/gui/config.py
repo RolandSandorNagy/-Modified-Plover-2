@@ -34,21 +34,13 @@ MACHINE_CONFIG_TAB_NAME = "Machine"
 DISPLAY_CONFIG_TAB_NAME = "Display"
 OUTPUT_CONFIG_TAB_NAME = "Output"
 
-IME_CONFIG_TAB_NAME = "Ime"
-START_IME_TEXT = "Open ime on startup"
-
 DICTIONARY_CONFIG_TAB_NAME = "Dictionary"
 LOGGING_CONFIG_TAB_NAME = "Logging"
 SAVE_CONFIG_BUTTON_NAME = "Save"
 MACHINE_LABEL = "Stenotype Machine:"
 
-SUGGEST_BY_LABEL = "Suggest by:"
-
 MACHINE_AUTO_START_LABEL = "Automatically Start"
 LOG_FILE_LABEL = "Log File:"
-
-IME_LOC_LABEL = "ime location:"
-IME_EXE_FILE_DIALOG_TITLE = "Select path to ime"
 
 LOG_STROKES_LABEL = "Log Strokes"
 LOG_TRANSLATIONS_LABEL = "Log Translations"
@@ -60,14 +52,19 @@ SPACE_PLACEMENT_AFTER = "After Output"
 SPACE_PLACEMENTS = [SPACE_PLACEMENT_BEFORE, SPACE_PLACEMENT_AFTER]
 UNDO_LEVELS_LABEL = "Stroke Undo Limit:"
 
-IME_POPUP_HIDE_TIMEOUT = "Popup hide timeout:"
-IME_CON_HOST_NAME = "Host name:"
-IME_CON_PORT_NUMBER = "Port number:"
-
 FIRST_STROKE_LABEL = "First Stroke:"
 START_CAPITALIZED_LABEL = "Start Capitalized"
 START_ATTACHED_LABEL = "Suppress Space"
 TRANSLATION_OPACITY_LABEL = "Translation Dialog Opacity"
+
+IME_CONFIG_TAB_NAME = "Ime"
+START_IME_TEXT = "Open ime on startup"
+SUGGEST_BY_LABEL = "Suggest by:"
+IME_LOC_LABEL = "ime location:"
+IME_EXE_FILE_DIALOG_TITLE = "Select path to ime"
+IME_POPUP_HIDE_TIMEOUT = "Popup hide timeout:"
+IME_CON_HOST_NAME = "Host name:"
+IME_CON_PORT_NUMBER = "Port number:"
 
 UI_BORDER = 4
 COMPONENT_SPACE = 3
@@ -716,7 +713,7 @@ class OutputConfig(wx.Panel):
         self.config.set_undo_levels(self.buffer_selector.GetValue())
 
 class ImeConfig(wx.Panel):
-    """Display configuration graphical user interface."""
+    """Display MIME configuration graphical user interface."""
 
     def __init__(self, config, parent):
         """Create a configuration component based on the given Config.
@@ -837,6 +834,7 @@ class ImeConfig(wx.Panel):
 
     def _update(self, event=None):
         # Refreshes the UI to reflect current data.
+        # TODO
         print "update"
 
     def save(self):
@@ -848,7 +846,6 @@ class ImeConfig(wx.Panel):
         self.config.set_ime_exe_file(self.file_browser.GetValue())
         self.config.set_ime_host(self.tc.GetValue())
         self.config.set_ime_port(self.buffer_selector2.GetValue())
-        print "ime config save"
 
     def mapSuggestBy_sti(self, str):
         if(str == "1"):

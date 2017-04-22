@@ -17,10 +17,7 @@ class ImeConnection(threading.Thread):
     hasMsg = False
     msg = ""
 
-    IME_IS_CONNECTED = 2
-    IME_IS_PAUSED = 1
-    IME_IS_DISCONNECTED = 0
-
+ 
     def __init__(self, mainFrame):
         threading.Thread.__init__(self)
         self.frame = mainFrame
@@ -33,12 +30,10 @@ class ImeConnection(threading.Thread):
             connected_K1 = self.connected
             if(not self.connected):
                 if(not self.conTryLabel):
-                    print 'connecting to IME...'
                     self.conTryLabel = True
                 self.connected = self.connectToServer()
             if(not connected_K1 and self.connected):
-                print 'connected.'
-                self.frame.updateImeStatus(self.IME_IS_CONNECTED)                
+                self.frame.updateImeStatus(self.frame.IME_IS_CONNECTED)                
                 self.isActive = True
                 self.conTryLabel = False
             if(self.connected and self.hasMsg):
@@ -55,33 +50,30 @@ class ImeConnection(threading.Thread):
     def sendMsg(self, msg):
         try:                
             if(not self.connected):
-                print "ime is not connected"
                 return
             self.sock.sendto(msg.encode('utf-8'), (self.host, self.port))
             self.emptyMsgTray()
-            if(msg == "CMD::STOP"):
-                self.frame.updateImeStatus(self.IME_IS_DISCONNECTED)
+            if(msg == self.frame.IME_CMD_STOP):
+                self.frame.updateImeStatus(self.frame.IME_IS_DISCONNECTED)
                 self.initVars()
-            elif(msg == "CMD::PAUSE"):
-                self.frame.updateImeStatus(self.IME_IS_PAUSED)
+            elif(msg == self.frame.IME_CMD_PAUSE):
+                self.frame.updateImeStatus(self.frame.IME_IS_PAUSED)
                 self.isActive = False
-            elif(msg == "CMD::RESUME"):
-                self.frame.updateImeStatus(self.IME_IS_CONNECTED)                
+            elif(msg == self.frame.IME_CMD_RESUME):
+                self.frame.updateImeStatus(self.frame.IME_IS_CONNECTED)                
                 self.isActive = True
             return True
         except Exception as e: 
             self.sock.close()
             self.sock = socket.socket()
             self.initVars()
-            print 'disconnected.'
             return False
 
     def setMsg(self, msg):
-        if(not self.connected or (not self.isActive and msg != "CMD::RESUME")):
+        if(not self.connected or (not self.isActive and msg != self.frame.IME_CMD_RESUME)):
             return
         self.msg = msg
         self.hasMsg = True
-        print "msg is set"
 
     def initVars(self):
         self.running = True 
@@ -100,6 +92,6 @@ class ImeConnection(threading.Thread):
 
     def destroy(self):
         if(self.connected):
-            self.sendMsg('CMD::STOP');
+            self.sendMsg(self.frame.IME_CMD_STOP);
         self.running = False
 
