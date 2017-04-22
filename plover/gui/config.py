@@ -729,59 +729,51 @@ class ImeConfig(wx.Panel):
         self.config = config
         gap = COMPONENT_SPACE * 3
 
-        # ------------------------------------
-
-        grid1 = wx.GridBagSizer(gap, gap)
+        top_grid = wx.GridBagSizer(gap, gap)
 
         self.start_ime = wx.CheckBox(
             self, label=START_IME_TEXT)
         self.start_ime.SetValue(config.get_start_ime_on_startup())
 
-        grid1.Add(self.start_ime,
+        top_grid.Add(self.start_ime,
                   pos=(0, 0),
                   flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
 
-        # ------------------------------------
-
-        grid1.Add(wx.StaticText(self, label=IME_POPUP_HIDE_TIMEOUT),
+        top_grid.Add(wx.StaticText(self, label=IME_POPUP_HIDE_TIMEOUT),
                   pos=(1, 0),
                   flag=wx.ALIGN_CENTER_VERTICAL)
 
-        buffer_selector = wx.SpinCtrl(self)
-        buffer_selector.SetRange(conf.MINIMUM_IME_POPUP_HIDE_TIMEPUT,
+        popup_hide_timeout_buffer = wx.SpinCtrl(self)
+        popup_hide_timeout_buffer.SetRange(conf.MINIMUM_IME_POPUP_HIDE_TIMEPUT,
                                  60)
-        buffer_selector.SetValue(self.config.get_ime_popup_timeout())
-        grid1.Add(buffer_selector,
+        popup_hide_timeout_buffer.SetValue(self.config.get_ime_popup_timeout())
+        top_grid.Add(popup_hide_timeout_buffer,
                   pos=(1, 1),
                   flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
 
-        self.popup_timeout = buffer_selector
+        self.popup_timeout = popup_hide_timeout_buffer
 
-        # ------------------------------------
-
-        sizer = wx.FlexGridSizer(2, 3)
-        sizer.AddGrowableCol(1)
+        choice_grid = wx.FlexGridSizer(2, 3)
+        choice_grid.AddGrowableCol(1)
 
         sizer_flags = wx.SizerFlags(1) \
             .Align(wx.ALIGN_CENTER_VERTICAL) \
             .Border(wx.ALL, UI_BORDER)
 
-        sizer.AddF(
+        choice_grid.AddF(
             wx.StaticText(self, label=SUGGEST_BY_LABEL),
             sizer_flags.Left())
         self.choice = wx.Choice(self, choices=["1","2","3","4"])
         self.choice.SetStringSelection(self.mapSuggestBy_its(self.config.get_ime_suggest_by()))
-        sizer.AddF(self.choice, sizer_flags.Expand())
+        choice_grid.AddF(self.choice, sizer_flags.Expand())
         self.Bind(wx.EVT_CHOICE, self._update, self.choice)
 
-        # ------------------------------------
-
-        locsizer = wx.BoxSizer(wx.VERTICAL)
+        loc_sizer = wx.BoxSizer(wx.VERTICAL)
 
         ime_exe_file = config.get_ime_exe_file()
         ime_exe_file = os.path.join(conf.CONFIG_DIR, ime_exe_file)
         ime_dir = os.path.split(ime_exe_file)[0]
-        self.file_browser = filebrowse.FileBrowseButton(
+        self.exe_file_browser = filebrowse.FileBrowseButton(
             self,
             labelText=IME_LOC_LABEL,
             fileMask='*' + conf.EXE_EXTENSION,
@@ -790,45 +782,39 @@ class ImeConfig(wx.Panel):
             initialValue=ime_exe_file,
             startDirectory=ime_dir,
             )
-        locsizer.Add(self.file_browser, border=UI_BORDER, flag=wx.ALL | wx.EXPAND)
+        loc_sizer.Add(self.exe_file_browser, border=UI_BORDER, flag=wx.ALL | wx.EXPAND)
 
-        # --------------------------------------
+        bottom_grid = wx.GridBagSizer(gap, gap)
 
-        grid2 = wx.GridBagSizer(gap, gap)
-
-        grid2.Add(wx.StaticText(self, label=IME_CON_HOST_NAME),
+        bottom_grid.Add(wx.StaticText(self, label=IME_CON_HOST_NAME),
                   pos=(0, 0),
                   flag=wx.ALIGN_CENTER_VERTICAL)
 
-        self.tc = wx.TextCtrl(self)
-        self.tc.SetValue(self.config.get_ime_host())
-        grid2.Add(self.tc,
+        self.host = wx.TextCtrl(self)
+        self.host.SetValue(self.config.get_ime_host())
+        bottom_grid.Add(self.host,
                   pos=(0, 1),
                   flag=wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL)
 
-
-
-        grid2.Add(wx.StaticText(self, label=IME_CON_PORT_NUMBER),
+        bottom_grid.Add(wx.StaticText(self, label=IME_CON_PORT_NUMBER),
                   pos=(1, 0),
                   flag=wx.ALIGN_CENTER_VERTICAL)
 
-        buffer_selector2 = wx.SpinCtrl(self)
-        buffer_selector2.SetRange(conf.MINIMUM_PORT_NUMBER,
+        port_buffer = wx.SpinCtrl(self)
+        port_buffer.SetRange(conf.MINIMUM_PORT_NUMBER,
                                  conf.MAXIMUM_PORT_NUMBER)
-        buffer_selector2.SetValue(self.config.get_ime_port())
-        grid2.Add(buffer_selector2,
+        port_buffer.SetValue(self.config.get_ime_port())
+        bottom_grid.Add(port_buffer,
                   pos=(1, 1),
                   flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
 
-        self.buffer_selector2 = buffer_selector2
-
-        # --------------------------------------
+        self.port = port_buffer
 
         border = wx.BoxSizer(wx.VERTICAL)
-        border.AddF(grid1, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
-        border.AddF(sizer, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
-        border.AddF(locsizer, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
-        border.AddF(grid2, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(top_grid, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(choice_grid, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(loc_sizer, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(bottom_grid, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
 
         self.SetSizer(border)
 
@@ -839,13 +825,17 @@ class ImeConfig(wx.Panel):
 
     def save(self):
         """Write all parameters to the config."""
-        self.config.set_start_ime_on_startup(self.start_ime.GetValue())
-        self.config.set_ime_popup_timeout(self.popup_timeout.GetValue())
-        suggest_by = self.mapSuggestBy_sti(self.choice.GetStringSelection())
-        self.config.set_ime_suggest_by(suggest_by)
-        self.config.set_ime_exe_file(self.file_browser.GetValue())
-        self.config.set_ime_host(self.tc.GetValue())
-        self.config.set_ime_port(self.buffer_selector2.GetValue())
+        self.config.set_start_ime_on_startup(
+            self.start_ime.GetValue())
+        self.config.set_ime_popup_timeout(
+            self.popup_timeout.GetValue())
+        self.config.set_ime_suggest_by(
+            self.mapSuggestBy_sti(
+                self.choice.GetStringSelection()))
+        self.config.set_ime_exe_file(
+            self.exe_file_browser.GetValue())
+        self.config.set_ime_host(self.host.GetValue())
+        self.config.set_ime_port(self.port.GetValue())
 
     def mapSuggestBy_sti(self, str):
         if(str == "1"):
