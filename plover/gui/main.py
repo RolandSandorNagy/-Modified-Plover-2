@@ -320,7 +320,8 @@ class MainFrame(wx.Frame):
         
     def startIMEProcess(self):
         if(self.ime_connection.connected):
-            self.sendToIME(self.IME_CMD_STOP)
+            return
+            # self.sendToIME(self.IME_CMD_STOP)
         else:
             self.p = subprocess.Popen([self.config.get_ime_exe_file()])
 
@@ -491,11 +492,11 @@ class Output(object):
             log.error('output failed', exc_info=True)
 
     def send_backspaces(self, b):
-        self.frame.sendToIME(self.frame.IME_CMD_UNDO)
+        # self.frame.sendToIME(self.frame.IME_CMD_UNDO)
         wx.CallAfter(self._xcall, self.keyboard_control.send_backspaces, b)
 
     def send_string(self, t):
-        self.frame.sendToIME(t)
+        # self.frame.sendToIME(t)
         wx.CallAfter(self._xcall, self.keyboard_control.send_string, t)
 
     def send_key_combination(self, c):
