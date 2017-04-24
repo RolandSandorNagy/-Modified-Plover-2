@@ -126,8 +126,23 @@ class StenoDictionaryCollection(object):
         if(len(do) < 1):
             return do
         key = do[0].rtfcre
+        # print "do[0].rtfcre: "
+        # print key        
         key_len = len(key)
         possibilities = {}
+        currentKey = "current"
+
+        curr_key = u""
+        for i in range(0, len(key)):
+            if(not i == 0 and not i == len(key)):
+                curr_key += "/"    
+            curr_key += key[i]
+        tr = u"none"
+        if(do[0].english):
+            tr = do[0].english
+        possibilities[(currentKey,)] = curr_key + u":" + tr + u":"
+
+        # possibilities[(currentKey,)] = key[0]
         for d in self.dicts:    
             if key_len > d.longest_key:
                 continue
@@ -140,10 +155,11 @@ class StenoDictionaryCollection(object):
         return self.shrinkPossibilities(possibilities)
 
     def isPossibleContinue(self, key, entry):
+        # TODO
         if(len(key) >= len(entry)):
             return False
         for i in range(0, len(key)):
-            if(key[0] != entry[0]):
+            if(key[i] != entry[i]):
                 return False
         return True
 
@@ -151,7 +167,7 @@ class StenoDictionaryCollection(object):
         # TODO
         if(len(pos) < 10):
             return pos
-        print "too many possibilities"
+        # print "too many possibilities"
         return pos
 
     def lookup(self, key):

@@ -112,25 +112,22 @@ class ImeConnection(threading.Thread):
 
     def sendSuggestions(self, suggs):
         # TODO
-        print "sending: "
-        print suggs
+        # print "sending: "
+        # print suggs
         suggs_str = u""
         for key in suggs:
-            print key, suggs[key]
             key_str = u""
             for i in range(0, len(key[0])):
                 if(not i == 0 and not i == len(key[0])):
                     key_str += "/"    
                 key_str += key[0][i]
-            key_str += u':' + suggs[key] + u";"
-            print "key_str: "
-            print key_str
+            key_str += u":" + suggs[key] + u";"
             suggs_str += key_str
-        print "suggs_str: "
-        print suggs_str
         try:                
             if(not self.connected):
                 return
+            if(suggs_str == u""):
+                suggs_str = u"none"
             self.sock.sendto(suggs_str.encode('utf-8'), (self.host, self.port))
             self.emptySuggsTray()
             return True

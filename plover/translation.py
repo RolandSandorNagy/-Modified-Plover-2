@@ -290,8 +290,10 @@ class Translator(object):
         if add_to_history:
             self._state.translations.extend(do)
 
-        possibleContinues = self.getPossibleContinues(do)
-        self.ime_connection.setSuggestions(possibleContinues)
+        possible_continues = self.getPossibleContinues(do)
+        print possible_continues
+        print ""
+        self.ime_connection.setSuggestions(possible_continues)
 
     def add_ime_connection(self, con):
         self.ime_connection = con
