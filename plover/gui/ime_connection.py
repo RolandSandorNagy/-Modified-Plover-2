@@ -15,7 +15,7 @@ class ImeConnection(threading.Thread):
     isActive = False
     conTryLabel = False
     hasMessage = False
-    message = ""
+    message = u""
     hasSuggestions = False
     suggestions = {}
 
@@ -56,7 +56,7 @@ class ImeConnection(threading.Thread):
             if(not self.connected):
                 return
             self.sock.sendto(msg.encode('utf-8'), (self.host, self.port))
-            self.emptyMsgTray()
+            self.emptyMessageTray()
             if(msg == self.frame.IME_CMD_STOP):
                 self.frame.updateImeStatus(self.frame.IME_IS_DISCONNECTED)
                 self.initVars()
@@ -84,14 +84,14 @@ class ImeConnection(threading.Thread):
         self.connected = False
         self.isActive = False
         self.conTryLabel = False
-        self.emptyMsgTray()
-        self.emptySuggsTray()
+        self.emptyMessageTray()
+        self.emptySuggestionTray()
 
-    def emptyMsgTray(self):
+    def emptyMessageTray(self):
         self.hasMessage = False
-        self.message = ""        
+        self.message = u""        
 
-    def emptySuggsTray(self):
+    def emptySuggestionTray(self):
         self.hasSuggestions = False
         self.suggestions = {}
 
@@ -111,9 +111,8 @@ class ImeConnection(threading.Thread):
         self.hasSuggestions = True
 
     def sendSuggestions(self, suggs):
-        # TODO
-        # print "sending: "
-        # print suggs
+        if(not self.connected):
+            return
         suggs_str = u""
         for key in suggs:
             key_str = u""
@@ -123,13 +122,11 @@ class ImeConnection(threading.Thread):
                 key_str += key[0][i]
             key_str += u":" + suggs[key] + u";"
             suggs_str += key_str
-        try:                
-            if(not self.connected):
-                return
             if(suggs_str == u""):
                 suggs_str = u"none"
+        try:                
             self.sock.sendto(suggs_str.encode('utf-8'), (self.host, self.port))
-            self.emptySuggsTray()
+            self.emptySuggestionTray()
             return True
         except Exception as e: 
             self.sock.close()

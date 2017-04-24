@@ -320,8 +320,7 @@ class MainFrame(wx.Frame):
         
     def startIMEProcess(self):
         if(self.ime_connection.connected):
-            return
-            # self.sendToIME(self.IME_CMD_STOP)
+            self.sendToIME(self.IME_CMD_STOP)
         else:
             self.p = subprocess.Popen([self.config.get_ime_exe_file()])
 

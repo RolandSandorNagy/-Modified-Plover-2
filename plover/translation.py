@@ -291,15 +291,12 @@ class Translator(object):
             self._state.translations.extend(do)
 
         possible_continues = self.getPossibleContinues(do)
-        print possible_continues
-        print ""
         self.ime_connection.setSuggestions(possible_continues)
 
     def add_ime_connection(self, con):
         self.ime_connection = con
 
     def getPossibleContinues(self, do):
-        # TODO
         return self._dictionary.findPossibleContinues(do)
 
     def _find_translation(self, stroke, mapping):

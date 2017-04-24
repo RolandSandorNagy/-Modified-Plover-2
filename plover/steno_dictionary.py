@@ -96,6 +96,7 @@ class StenoDictionaryCollection(object):
         self.filters = []
         self.longest_key = 0
         self.longest_key_callbacks = set()
+        self.max_possibilities = 10
 
     def set_dicts(self, dicts):
         for d in self.dicts:
@@ -126,12 +127,9 @@ class StenoDictionaryCollection(object):
         if(len(do) < 1):
             return do
         key = do[0].rtfcre
-        # print "do[0].rtfcre: "
-        # print key        
         key_len = len(key)
         possibilities = {}
         currentKey = "current"
-
         curr_key = u""
         for i in range(0, len(key)):
             if(not i == 0 and not i == len(key)):
@@ -141,8 +139,6 @@ class StenoDictionaryCollection(object):
         if(do[0].english):
             tr = do[0].english
         possibilities[(currentKey,)] = curr_key + u":" + tr + u":"
-
-        # possibilities[(currentKey,)] = key[0]
         for d in self.dicts:    
             if key_len > d.longest_key:
                 continue
@@ -155,7 +151,6 @@ class StenoDictionaryCollection(object):
         return self.shrinkPossibilities(possibilities)
 
     def isPossibleContinue(self, key, entry):
-        # TODO
         if(len(key) >= len(entry)):
             return False
         for i in range(0, len(key)):
@@ -165,10 +160,12 @@ class StenoDictionaryCollection(object):
 
     def shrinkPossibilities(self, pos):
         # TODO
-        if(len(pos) < 10):
+        if(len(pos) < self.max_possibilities):
             return pos
-        # print "too many possibilities"
         return pos
+
+    def set_max_possibilities(self, max_poss):
+        self.max_possibilities = max_poss
 
     def lookup(self, key):
         return self._lookup(key, filters=self.filters)
