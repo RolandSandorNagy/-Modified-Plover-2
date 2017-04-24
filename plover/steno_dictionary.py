@@ -149,6 +149,9 @@ class StenoDictionaryCollection(object):
 
     def shrinkPossibilities(self, pos):
         # TODO
+        if(len(pos) < 10):
+            return pos
+        print "too many possibilities"
         return pos
 
     def lookup(self, key):
