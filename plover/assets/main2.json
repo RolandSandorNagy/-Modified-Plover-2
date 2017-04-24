@@ -1,0 +1,13 @@
+{
+	"-B": "be",
+	"-R": "are",
+	"-T": "the",
+	"-G": "{^ing}",
+	"S": "proba_1",
+	"S/S": "2_proba",
+	"S/S/S": "3_proba_3",
+	"S/S/S/S": "proba_1",
+	"A": "alma",
+	"A/B": "almafa",
+	"A/BC": "almafácska"
+}

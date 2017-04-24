@@ -14,8 +14,10 @@ class ImeConnection(threading.Thread):
     connected = False
     isActive = False
     conTryLabel = False
-    hasMsg = False
-    msg = ""
+    hasMessage = False
+    message = ""
+    hasSuggestions = False
+    suggestions = []
 
  
     def __init__(self, mainFrame):
@@ -36,8 +38,10 @@ class ImeConnection(threading.Thread):
                 self.frame.updateImeStatus(self.frame.IME_IS_CONNECTED)                
                 self.isActive = True
                 self.conTryLabel = False
-            if(self.connected and self.hasMsg):
-                self.sendMsg(self.msg)
+            if(self.connected and self.hasMessage):
+                self.sendMessage(self.message)
+            if(self.connected and self.hasSuggestions):
+                self.sendSuggestions(self.suggestions)
 
     def connectToServer(self):
         try:
@@ -47,7 +51,7 @@ class ImeConnection(threading.Thread):
             self.closeSocket() 
             return False
 
-    def sendMsg(self, msg):
+    def sendMessage(self, msg):
         try:                
             if(not self.connected):
                 return
@@ -72,8 +76,8 @@ class ImeConnection(threading.Thread):
     def setMsg(self, msg):
         if(not self.connected or (not self.isActive and msg != self.frame.IME_CMD_RESUME)):
             return
-        self.msg = msg
-        self.hasMsg = True
+        self.message = msg
+        self.hasMessage = True
 
     def initVars(self):
         self.running = True 
@@ -81,10 +85,15 @@ class ImeConnection(threading.Thread):
         self.isActive = False
         self.conTryLabel = False
         self.emptyMsgTray()
+        self.emptySuggsTray()
 
     def emptyMsgTray(self):
-        self.hasMsg = False
-        self.msg = ""        
+        self.hasMessage = False
+        self.message = ""        
+
+    def emptySuggsTray(self):
+        self.hasSuggestions = False
+        self.suggestions = []
 
     def closeSocket(self):
         self.sock.close()
@@ -92,6 +101,18 @@ class ImeConnection(threading.Thread):
 
     def destroy(self):
         if(self.connected):
-            self.sendMsg(self.frame.IME_CMD_STOP);
+            self.sendMessage(self.frame.IME_CMD_STOP);
         self.running = False
 
+    def setSuggestions(self, suggs):
+        if(not self.connected or not self.isActive):
+            return
+        self.suggestions = suggs
+        self.hasSuggestions = True
+
+    def sendSuggestions(self, suggs):
+        # TODO
+        print "sending: "
+        print suggs
+        self.emptySuggsTray()
+        return

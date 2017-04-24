@@ -265,6 +265,7 @@ class Translator(object):
                 add_to_history = False
                 do = [Translation([stroke], _back_string())]
         else:
+
             mapping = self._lookup([stroke])
 
             if mapping == '{*}':
@@ -289,6 +290,16 @@ class Translator(object):
         self._output(undo, do, self._state.last())
         if add_to_history:
             self._state.translations.extend(do)
+
+        possibleContinues = self.getPossibleContinues(do)
+        self.ime_connection.setSuggestions(possibleContinues)
+
+    def add_ime_connection(self, con):
+        self.ime_connection = con
+
+    def getPossibleContinues(self, do):
+        # TODO
+        return do
 
     def _find_translation(self, stroke, mapping):
         t = self._find_translation_helper(stroke)

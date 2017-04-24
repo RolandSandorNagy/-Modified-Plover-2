@@ -300,6 +300,8 @@ class MainFrame(wx.Frame):
         self.ime_connection = ImeConnection(self)
         self.ime_connection.start()
 
+        self.steno_engine.translator.add_ime_connection(self.ime_connection)
+
         if(self.config.get_start_ime_on_startup()):
             self.startIMEProcess()
             
