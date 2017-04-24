@@ -122,6 +122,11 @@ class StenoDictionaryCollection(object):
                         return None
                 return value
 
+    def findPossibleContinues(self, do):
+        possibilities = do
+        # TODO
+        return shrinkPossibilities(possibilities)
+
     def isPossibleContinue(self, key, dm):
         if(len(key) >= len(dm)):
             return False
@@ -130,7 +135,7 @@ class StenoDictionaryCollection(object):
                 return False
         return True
 
-    def shrinkPossibilitios(pos):
+    def shrinkPossibilities(pos):
         # TODO
         return
 

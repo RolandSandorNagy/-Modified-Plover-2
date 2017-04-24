@@ -298,7 +298,7 @@ class Translator(object):
 
     def getPossibleContinues(self, do):
         # TODO
-        return do
+        return self._dictionary.findPossibleContinues(do)
 
     def _find_translation(self, stroke, mapping):
         t = self._find_translation_helper(stroke)
