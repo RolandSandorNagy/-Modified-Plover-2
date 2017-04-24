@@ -265,7 +265,6 @@ class Translator(object):
                 add_to_history = False
                 do = [Translation([stroke], _back_string())]
         else:
-
             mapping = self._lookup([stroke])
 
             if mapping == '{*}':

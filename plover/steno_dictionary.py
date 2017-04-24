@@ -112,6 +112,27 @@ class StenoDictionaryCollection(object):
         key_len = len(key)
         if key_len > self.longest_key:
             return None
+        for d in dicts:    
+            if key_len > d.longest_key:
+                continue
+            value = d.get(key)
+            if value:
+                for f in filters:
+                    if f(key, value):
+                        return None
+                return value
+
+    def isPossibleContinue(self, key, dm):
+        if(len(key) >= len(dm)):
+            return False
+        for i in range(0, len(key)):
+            if(key[0] != dm[0]):
+                return False
+        return True
+
+    def shrinkPossibilitios(pos):
+        # TODO
+        return
 
     def lookup(self, key):
         return self._lookup(key, filters=self.filters)
