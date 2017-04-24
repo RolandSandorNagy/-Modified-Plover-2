@@ -17,7 +17,7 @@ class ImeConnection(threading.Thread):
     hasMessage = False
     message = ""
     hasSuggestions = False
-    suggestions = []
+    suggestions = {}
 
  
     def __init__(self, mainFrame):
@@ -93,7 +93,7 @@ class ImeConnection(threading.Thread):
 
     def emptySuggsTray(self):
         self.hasSuggestions = False
-        self.suggestions = []
+        self.suggestions = {}
 
     def closeSocket(self):
         self.sock.close()

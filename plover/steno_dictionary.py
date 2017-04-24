@@ -110,7 +110,6 @@ class StenoDictionaryCollection(object):
         if dicts is None:
             dicts = self.dicts
         key_len = len(key)
-        print key
         if key_len > self.longest_key:
             return None
         for d in dicts:    
@@ -126,21 +125,19 @@ class StenoDictionaryCollection(object):
     def findPossibleContinues(self, do, filters=()):
         if(len(do) < 1):
             return do
-        print "do[0].rtfcre: "
-        print do[0].rtfcre
         key = do[0].rtfcre
         key_len = len(key)
-        possibilities = ()
+        possibilities = {}
         for d in self.dicts:    
             if key_len > d.longest_key:
                 continue
-            for dm in d:
-                if(self.isPossibleContinue(key, dm)):
-                    possibilities += (dm,)
-        # TODO
-        print "possibilities: "
-        print possibilities
-        return self.shrinkPossibilities(do)
+            for entry in d:
+                if(self.isPossibleContinue(key, entry)):
+                    entry_key = ()
+                    for i in range(0,len(entry)):
+                        entry_key += (str(entry[i]),)
+                    possibilities[(entry,)] = d.get(entry_key) 
+        return self.shrinkPossibilities(possibilities)
 
     def isPossibleContinue(self, key, entry):
         if(len(key) >= len(entry)):
