@@ -229,7 +229,7 @@ class MainFrame(wx.Frame):
         IME_sizer = wx.BoxSizer(wx.HORIZONTAL)
         IME_sizer.AddF(self.spinner, center_flag)
         IME_sizer.AddF(self.ime_connection_ctrl, center_flag)        
-        self.ime_status_text = wx.StaticText(root, label="Plover Helper IME      ")
+        self.ime_status_text = wx.StaticText(root, label="Plover helper MIme   ")
         IME_sizer.AddF(self.ime_status_text, center_flag)
         connect_ime_bitmap = wx.Bitmap(self.CONNECT_IME_IMAGE_FILE, wx.BITMAP_TYPE_PNG)          
         self.ime_connection_button = wx.BitmapButton(root, bitmap=connect_ime_bitmap)
@@ -491,11 +491,9 @@ class Output(object):
             log.error('output failed', exc_info=True)
 
     def send_backspaces(self, b):
-        # self.frame.sendToIME(self.frame.IME_CMD_UNDO)
         wx.CallAfter(self._xcall, self.keyboard_control.send_backspaces, b)
 
     def send_string(self, t):
-        # self.frame.sendToIME(t)
         wx.CallAfter(self._xcall, self.keyboard_control.send_string, t)
 
     def send_key_combination(self, c):

@@ -57,12 +57,15 @@ START_CAPITALIZED_LABEL = "Start Capitalized"
 START_ATTACHED_LABEL = "Suppress Space"
 TRANSLATION_OPACITY_LABEL = "Translation Dialog Opacity"
 
-IME_CONFIG_TAB_NAME = "Ime"
-START_IME_TEXT = "Open ime on startup"
+IME_CONFIG_TAB_NAME = "MIme"
+START_IME_TEXT = "Open MIme on startup"
 SUGGEST_BY_LABEL = "Suggest by:"
-IME_LOC_LABEL = "ime location:"
+IME_WORDS_LOC_LABEL = "Common words csv file:"
+IME_LOC_LABEL = "MIme location:"
+IME_CSV_FILE_DIALOG_TITLE = "Select path to common words"
 IME_EXE_FILE_DIALOG_TITLE = "Select path to ime"
 IME_POPUP_HIDE_TIMEOUT = "Popup hide timeout:"
+IME_NUMBER_OF_SUGGESTIONS = "Number of suggestions:"
 IME_CON_HOST_NAME = "Host name:"
 IME_CON_PORT_NUMBER = "Port number:"
 
@@ -745,13 +748,30 @@ class ImeConfig(wx.Panel):
 
         popup_hide_timeout_buffer = wx.SpinCtrl(self)
         popup_hide_timeout_buffer.SetRange(conf.MINIMUM_IME_POPUP_HIDE_TIMEPUT,
-                                 60)
+                                 conf.MAXIMUM_IME_POPUP_HIDE_TIMEPUT)
         popup_hide_timeout_buffer.SetValue(self.config.get_ime_popup_timeout())
         top_grid.Add(popup_hide_timeout_buffer,
                   pos=(1, 1),
                   flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
 
         self.popup_timeout = popup_hide_timeout_buffer
+
+
+        top_grid.Add(wx.StaticText(self, label=IME_NUMBER_OF_SUGGESTIONS),
+                  pos=(2, 0),
+                  flag=wx.ALIGN_CENTER_VERTICAL)
+
+        number_of_suggestions_buffer = wx.SpinCtrl(self)
+        number_of_suggestions_buffer.SetRange(conf.MINIMUM_IME_NUMBER_OF_SUGGESTIONS,
+                                 conf.MAXIMUM_IME_NUMBER_OF_SUGGESTIONS)
+        number_of_suggestions_buffer.SetValue(self.config.get_ime_number_of_suggestions())
+        top_grid.Add(number_of_suggestions_buffer,
+                  pos=(2, 1),
+                  flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+
+        self.number_of_suggestions = number_of_suggestions_buffer
+
+
 
         choice_grid = wx.FlexGridSizer(2, 3)
         choice_grid.AddGrowableCol(1)
@@ -763,12 +783,31 @@ class ImeConfig(wx.Panel):
         choice_grid.AddF(
             wx.StaticText(self, label=SUGGEST_BY_LABEL),
             sizer_flags.Left())
-        self.choice = wx.Choice(self, choices=["1","2","3","4"])
+        self.choice = wx.Choice(self, choices=["random","alphabetical (asc)","alphabetical (desc)"])
         self.choice.SetStringSelection(self.mapSuggestBy_its(self.config.get_ime_suggest_by()))
         choice_grid.AddF(self.choice, sizer_flags.Expand())
         self.Bind(wx.EVT_CHOICE, self._update, self.choice)
 
-        loc_sizer = wx.BoxSizer(wx.VERTICAL)
+        csv_loc_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        ime_csv_file = config.get_ime_words_csv_file()
+        ime_csv_file = os.path.join(conf.CONFIG_DIR, ime_csv_file)
+        ime_dir = os.path.split(ime_csv_file)[0]        
+        if(os.path.split(ime_csv_file)[1] == 'none'):
+            ime_csv_file = 'none'
+        self.csv_file_browser = filebrowse.FileBrowseButton(
+            self,
+            labelText=IME_WORDS_LOC_LABEL,
+            fileMask='*' + conf.EXE_EXTENSION,
+            fileMode=wx.SAVE,
+            dialogTitle=IME_CSV_FILE_DIALOG_TITLE,
+            initialValue=ime_csv_file,
+            startDirectory=ime_dir,
+            )
+
+        csv_loc_sizer.Add(self.csv_file_browser, border=UI_BORDER, flag=wx.ALL | wx.EXPAND)
+
+        exe_loc_sizer = wx.BoxSizer(wx.VERTICAL)
 
         ime_exe_file = config.get_ime_exe_file()
         ime_exe_file = os.path.join(conf.CONFIG_DIR, ime_exe_file)
@@ -776,13 +815,14 @@ class ImeConfig(wx.Panel):
         self.exe_file_browser = filebrowse.FileBrowseButton(
             self,
             labelText=IME_LOC_LABEL,
-            fileMask='*' + conf.EXE_EXTENSION,
+            fileMask='*' + conf.CSV_EXTENSION,
             fileMode=wx.SAVE,
             dialogTitle=IME_EXE_FILE_DIALOG_TITLE,
             initialValue=ime_exe_file,
             startDirectory=ime_dir,
             )
-        loc_sizer.Add(self.exe_file_browser, border=UI_BORDER, flag=wx.ALL | wx.EXPAND)
+
+        exe_loc_sizer.Add(self.exe_file_browser, border=UI_BORDER, flag=wx.ALL | wx.EXPAND)
 
         bottom_grid = wx.GridBagSizer(gap, gap)
 
@@ -813,7 +853,8 @@ class ImeConfig(wx.Panel):
         border = wx.BoxSizer(wx.VERTICAL)
         border.AddF(top_grid, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
         border.AddF(choice_grid, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
-        border.AddF(loc_sizer, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(csv_loc_sizer, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
+        border.AddF(exe_loc_sizer, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
         border.AddF(bottom_grid, wx.SizerFlags().Border(wx.ALL, UI_BORDER))
 
         self.SetSizer(border)
@@ -829,30 +870,30 @@ class ImeConfig(wx.Panel):
             self.start_ime.GetValue())
         self.config.set_ime_popup_timeout(
             self.popup_timeout.GetValue())
+        self.config.set_ime_number_of_suggestions(
+            self.number_of_suggestions.GetValue())
         self.config.set_ime_suggest_by(
             self.mapSuggestBy_sti(
                 self.choice.GetStringSelection()))
+        self.config.set_ime_words_csv_file(
+            self.csv_file_browser.GetValue())
         self.config.set_ime_exe_file(
             self.exe_file_browser.GetValue())
         self.config.set_ime_host(self.host.GetValue())
         self.config.set_ime_port(self.port.GetValue())
 
     def mapSuggestBy_sti(self, str):
-        if(str == "1"):
+        if(str == "random"):
             return 1
-        elif(str == "2"):
+        elif(str == "alphabetical (asc)"):
             return 2
-        elif(str == "3"):
+        elif(str == "alphabetical (desc)"):
             return 3
-        elif(str == "4"):
-            return 4
 
     def mapSuggestBy_its(self, i):
         if(i == 1):
-            return "1"
+            return "random"
         elif(i == 2):
-            return "2"
+            return "alphabetical (asc)"
         elif(i == 3):
-            return "3"
-        elif(i == 4):
-            return "4"
+            return "alphabetical (desc)"

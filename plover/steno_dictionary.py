@@ -124,8 +124,6 @@ class StenoDictionaryCollection(object):
                 return value
 
     def findPossibleContinues(self, do, filters=()):
-        if(len(do) < 1):
-            return do
         key = do[0].rtfcre
         key_len = len(key)
         possibilities = {}

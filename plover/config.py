@@ -98,8 +98,12 @@ IME_ON_STARTUP_OPTION = 'startup'
 DEFAULT_IME_ON_STARTUP = False
 IME_POPUP_TIMEOUT_OPTION = 'popup_timeout'
 DEFAULT_IME_POPUP_TIMEOUT = 5
+IME_NUMBER_OF_SUGGESTIONS_OPTION = 'number_of_suggestions';
+DEFAULT_IME_NUMBER_OF_SUGGESTIONS = 20;
 IME_SUGGEST_BY_OPTION = 'suggest_by'
 DEFAULT_IME_SUGGEST_BY = 1
+IME_WORDS_CSV_FILE_OPTION = "ime_csv_file"
+DEFAULT_IME_WORDS_CSV_FILE = "none"
 IME_EXE_FILE_OPTION = 'ime_exe_file'
 DEFAULT_IME_EXE_FILE = 'ime.exe'
 IME_HOST_OPTION = 'host'
@@ -108,6 +112,9 @@ IME_PORT_OPTION = 'port'
 DEFAULT_IME_PORT = 12345
 
 MINIMUM_IME_POPUP_HIDE_TIMEPUT = 0
+MAXIMUM_IME_POPUP_HIDE_TIMEPUT = 60
+MINIMUM_IME_NUMBER_OF_SUGGESTIONS = 0
+MAXIMUM_IME_NUMBER_OF_SUGGESTIONS = 30
 MINIMUM_PORT_NUMBER = 0
 MAXIMUM_PORT_NUMBER = 65535
 
@@ -175,6 +182,7 @@ RTF_EXTENSION = '.rtf'
 # Logging constants.
 LOG_EXTENSION = '.log'
 EXE_EXTENSION = '.exe'
+CSV_EXTENSION = '.csv'
 
 
 MIN_FRAME_OPACITY = 0
@@ -337,6 +345,13 @@ class Config(object):
         return self._get_int(IME_CONFIG_SECTION, 
             IME_POPUP_TIMEOUT_OPTION, DEFAULT_IME_POPUP_TIMEOUT)
 
+    def set_ime_number_of_suggestions(self, b):
+        self._set(IME_CONFIG_SECTION, IME_NUMBER_OF_SUGGESTIONS_OPTION, b)
+
+    def get_ime_number_of_suggestions(self):
+        return self._get_int(IME_CONFIG_SECTION, 
+            IME_NUMBER_OF_SUGGESTIONS_OPTION, DEFAULT_IME_NUMBER_OF_SUGGESTIONS)
+
     def set_ime_suggest_by(self, b):
         self._set(IME_CONFIG_SECTION, IME_SUGGEST_BY_OPTION, b)
 
@@ -351,6 +366,15 @@ class Config(object):
     def get_ime_exe_file(self):
         filename = self._get(IME_CONFIG_SECTION, IME_EXE_FILE_OPTION, 
                              DEFAULT_IME_EXE_FILE)
+        return expand_path(filename)
+
+    def set_ime_words_csv_file(self, filename):
+        filename = shorten_path(filename)
+        self._set(IME_CONFIG_SECTION, IME_WORDS_CSV_FILE_OPTION, filename)
+
+    def get_ime_words_csv_file(self):
+        filename = self._get(IME_CONFIG_SECTION, IME_WORDS_CSV_FILE_OPTION, 
+                             DEFAULT_IME_WORDS_CSV_FILE)
         return expand_path(filename)
 
     def set_ime_host(self, host):
