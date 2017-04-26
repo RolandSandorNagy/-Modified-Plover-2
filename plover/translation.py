@@ -307,11 +307,7 @@ class Translator(object):
             self.ime_connection.setSuggestions(possible_continues)
 
     def create_common_words_dict(self, fname):
-        return
-        self.common_words_dict = ()
-        reader = csv.DictReader(open(fname))
-        for row in reader:
-            self.common_words_dict += (row,)
+        self._dictionary.create_common_words_dict(fname)
 
     def add_ime_connection(self, con):
         self.ime_connection = con

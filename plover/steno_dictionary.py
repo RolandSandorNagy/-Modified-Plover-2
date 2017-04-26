@@ -8,6 +8,7 @@ A steno dictionary maps sequences of steno strokes to translations.
 """
 
 import collections
+import csv
 
 class StenoDictionary(collections.MutableMapping):
     """A steno dictionary.
@@ -123,6 +124,15 @@ class StenoDictionaryCollection(object):
                         return None
                 return value
 
+    def create_common_words_dict(self, fname):
+        self.common_words_dict = ()
+        try:
+            reader = csv.DictReader(open(fname))
+            for row in reader:
+                self.common_words_dict += (row,)
+        except Exception:
+            return
+
     def findPossibleContinues(self, do, filters=()):
         key = do[0].rtfcre
         key_len = len(key)
@@ -157,9 +167,15 @@ class StenoDictionaryCollection(object):
         return True
 
     def shrinkPossibilities(self, pos):
-        # TODO
-        if(len(pos) < self.max_possibilities):
+        if(len(pos) <= self.max_possibilities):
             return pos
+        if(len(self.common_words_dict) == 0):
+            # TODO: only return the first max_possibilities 
+            #       number of elements from pos
+            return pos
+        # TODO: select the best max_possibilities 
+        #       number of elements from pos 
+        #       accoring to common_words_dict 
         return pos
 
     def set_max_possibilities(self, max_poss):

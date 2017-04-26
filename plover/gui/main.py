@@ -319,6 +319,8 @@ class MainFrame(wx.Frame):
         self.ime_connection.setMsg(msg)
         
     def startIMEProcess(self):
+        # if not self.steno_engine.is_running:
+            # return False
         if(self.ime_connection.connected):
             self.sendToIME(self.IME_CMD_STOP)
         else:
