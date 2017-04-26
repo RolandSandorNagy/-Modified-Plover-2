@@ -19,6 +19,7 @@ emits one or more Translation objects based on a greedy conversion algorithm.
 import itertools
 import sys
 import re
+import csv
 
 from plover.steno import Stroke
 from plover.steno_dictionary import StenoDictionaryCollection
@@ -159,6 +160,9 @@ class Translator(object):
     output to every function that has registered via the add_callback method.
 
     """
+
+    IME_CMD_HIDE = "CMD::HIDE"
+
     def __init__(self):
         self._undo_length = 0
         self._dictionary = None
@@ -290,20 +294,24 @@ class Translator(object):
         if add_to_history:
             self._state.translations.extend(do)
 
-        '''
         if(len(do) < 1):
-            possible_continues = self.getPossibleContinues(undo)
-        else:
-            possible_continues = self.getPossibleContinues(do)
-        self.ime_connection.setSuggestions(possible_continues)
-        '''
-        if(len(do) < 1):
-            possible_continues = self.getPossibleContinues(undo)
+            possible_continues = {}
+            self.ime_connection.setMsg(self.IME_CMD_HIDE)
+            if(len(self._state.translations) > 0):
+                before = [self._state.translations[len(self._state.translations) - 1]]
+                possible_continues = self.getPossibleContinues(before)        
         else:
             possible_continues = self.getPossibleContinues(do)
         if(    (len(do) >= 1 and not do[0].rtfcre == ('*',)) 
             or (len(do) < 1 and not undo[0].rtfcre == ('*',))):
             self.ime_connection.setSuggestions(possible_continues)
+
+    def create_common_words_dict(self, fname):
+        return
+        self.common_words_dict = ()
+        reader = csv.DictReader(open(fname))
+        for row in reader:
+            self.common_words_dict += (row,)
 
     def add_ime_connection(self, con):
         self.ime_connection = con

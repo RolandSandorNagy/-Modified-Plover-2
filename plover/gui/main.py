@@ -118,7 +118,6 @@ class MainFrame(wx.Frame):
     IME_CMD_SHOW = "CMD::SHOW"
     IME_CMD_HIDE = "CMD::HIDE"
     IME_CMD_SAVE = "CMD::SAVE"
-    IME_CMD_UNDO = 'CMD::UNDO'
 
     IME_IS_CONNECTED = 2
     IME_IS_PAUSED = 1
@@ -301,6 +300,7 @@ class MainFrame(wx.Frame):
         self.ime_connection.start()
 
         self.steno_engine.translator.add_ime_connection(self.ime_connection)
+        self.steno_engine.translator.create_common_words_dict(config.get_ime_words_csv_file())
 
         if(self.config.get_start_ime_on_startup()):
             self.startIMEProcess()
